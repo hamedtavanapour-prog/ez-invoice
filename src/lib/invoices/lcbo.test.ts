@@ -62,6 +62,7 @@ test("parses LCBO fields, multi-line names, and page-split items", () => {
   assert.equal(invoice.totals.calculatedProductTotal, 207.58);
   assert.equal(invoice.totals.deliveryFee, 5);
   assert.equal(invoice.totals.hstIncluded, 29.35);
+  assert.equal(invoice.totals.calculatedInvoiceTotal, 244.73);
   assert.equal(invoice.totals.difference, 4.77);
   assert.equal("deliveryTax" in invoice.totals, false);
 });
@@ -78,5 +79,6 @@ test("processes invoices without optional delivery fields", () => {
   assert.equal(invoice.items.every((item) => item.expectedDeliveryDate === null), true);
   assert.equal(invoice.totals.deliveryFee, null);
   assert.equal(invoice.totals.hstIncluded, 28.7);
+  assert.equal(invoice.totals.calculatedInvoiceTotal, 239.08);
   assert.equal(invoice.totals.difference, 10.42);
 });

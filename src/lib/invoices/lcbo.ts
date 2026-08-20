@@ -22,6 +22,7 @@ export type LcboInvoice = {
     hstIncluded: number;
     containerDepositIncluded: number;
     calculatedProductTotal: number;
+    calculatedInvoiceTotal: number;
     difference: number;
   };
 };
@@ -186,6 +187,7 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
       hstIncluded: roundCurrency(invoiceHstIncluded + deliveryTax),
       containerDepositIncluded,
       calculatedProductTotal,
+      calculatedInvoiceTotal: roundCurrency(calculatedInvoiceTotal),
       difference: roundCurrency(Math.abs(total - calculatedInvoiceTotal)),
     },
   };

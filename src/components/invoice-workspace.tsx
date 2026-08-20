@@ -230,12 +230,13 @@ export function InvoiceWorkspace() {
                 </form>
               </div>
 
-              <div className="grid gap-4 bg-[#fafaf6] p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-6">
-                <div className="rounded-2xl bg-[var(--ink)] p-5 text-white sm:col-span-2 lg:col-span-1"><p className="text-xs text-white/60">Calculated product total</p><p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{money.format(result.totals.calculatedProductTotal)}</p></div>
+              <div className="grid gap-4 bg-[#fafaf6] p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-4 xl:grid-cols-7">
+                <div className="rounded-2xl bg-[var(--ink)] p-5 text-white sm:col-span-2 lg:col-span-1"><p className="text-xs text-white/60">Calculated product total</p><p className="mt-3 text-[26px] font-semibold tracking-[-0.04em]">{money.format(result.totals.calculatedProductTotal)}</p></div>
                 <SummaryValue label="Delivery fee" value={result.totals.deliveryFee === null ? "Not provided" : money.format(result.totals.deliveryFee)} />
                 <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
                 <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
-                <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
+                <SummaryValue label="Calculated invoice total" value={money.format(result.totals.calculatedInvoiceTotal)} />
+                <SummaryValue label="LCBO invoice total" value={money.format(result.totals.total)} />
                 <SummaryValue label="Difference" value={money.format(result.totals.difference)} />
               </div>
 

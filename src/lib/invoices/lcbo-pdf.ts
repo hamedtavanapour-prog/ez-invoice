@@ -82,7 +82,8 @@ export function createLcboPdf(invoice: LcboInvoice) {
     ["Delivery fee", invoice.totals.deliveryFee === null ? "Not provided" : money(invoice.totals.deliveryFee)],
     ["HST included", money(invoice.totals.hstIncluded)],
     ["Container deposit", money(invoice.totals.containerDepositIncluded)],
-    ["Invoice total", money(invoice.totals.total)],
+    ["Calculated invoice total", money(invoice.totals.calculatedInvoiceTotal)],
+    ["LCBO invoice total", money(invoice.totals.total)],
     ["Difference", money(invoice.totals.difference)],
   ];
 
@@ -92,7 +93,7 @@ export function createLcboPdf(invoice: LcboInvoice) {
     body: summary,
     theme: "plain",
     margin: { left: 42, right: 42, bottom: 38 },
-    styles: { font: "helvetica", fontSize: 10, cellPadding: 7, textColor: navy },
+    styles: { font: "helvetica", fontSize: 10, cellPadding: 5, textColor: navy },
     headStyles: { fillColor: lightBlue, textColor: navy, fontStyle: "bold" },
     columnStyles: {
       0: { cellWidth: 390 },

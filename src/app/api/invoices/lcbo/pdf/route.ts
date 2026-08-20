@@ -17,6 +17,7 @@ function isLcboInvoice(value: unknown): value is LcboInvoice {
     Boolean(invoice.totals) &&
     typeof invoice.totals?.total === "number" &&
     typeof invoice.totals?.calculatedProductTotal === "number" &&
+    typeof invoice.totals?.calculatedInvoiceTotal === "number" &&
     typeof invoice.totals?.difference === "number"
   );
 }
