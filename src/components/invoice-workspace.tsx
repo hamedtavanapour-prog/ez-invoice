@@ -13,6 +13,13 @@ const money = new Intl.NumberFormat("en-CA", {
   currency: "CAD",
 });
 
+const preciseMoney = new Intl.NumberFormat("en-CA", {
+  style: "currency",
+  currency: "CAD",
+  minimumFractionDigits: 4,
+  maximumFractionDigits: 4,
+});
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-CA", {
     month: "short",
@@ -255,7 +262,7 @@ export function InvoiceWorkspace() {
                         <ResultValue label="Fulfilled" value={String(item.quantityFulfilled)} />
                         <ResultValue label="Unit price" value={money.format(item.unitPrice)} />
                         <ResultValue label="Deposit" value={`− ${money.format(item.bottleDeposit)}`} />
-                        <ResultValue label="Net unit" value={money.format(item.netUnitPrice)} />
+                        <ResultValue label="Net unit" value={preciseMoney.format(item.netUnitPrice)} />
                       </div>
                     </article>
                   ))}
@@ -269,7 +276,6 @@ export function InvoiceWorkspace() {
                   <div className="mt-5 grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-3">
                     <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
                     <SummaryValue label="Delivery fee" value={money.format(result.totals.deliveryFee)} />
-                    <SummaryValue label="Delivery tax" value={money.format(result.totals.deliveryTax)} />
                     <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
                     <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
                   </div>

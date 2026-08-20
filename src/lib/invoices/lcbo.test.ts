@@ -58,6 +58,6 @@ test("parses LCBO fields, multi-line names, and page-split items", () => {
   assert.equal(invoice.items[1].calculatedTotal, 154.62);
   assert.equal(invoice.totals.calculatedProductTotal, 207.58);
   assert.equal(invoice.totals.deliveryFee, 5);
-  assert.equal(invoice.totals.deliveryTax, 0.65);
-  assert.equal(invoice.totals.hstIncluded, 28.7);
+  assert.equal(invoice.totals.hstIncluded, 29.35);
+  assert.equal("deliveryTax" in invoice.totals, false);
 });
