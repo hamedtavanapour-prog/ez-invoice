@@ -261,8 +261,10 @@ export function InvoiceWorkspace() {
                     <p className="mt-2 text-4xl font-semibold tracking-[-0.04em]">{money.format(result.totals.calculatedProductTotal)}</p>
                     <p className="mt-3 text-[11px] text-white/55">(Unit price − deposit) ÷ 1.13 × fulfilled quantity</p>
                   </div>
-                  <div className="mt-5 grid gap-3 text-xs sm:grid-cols-3">
+                  <div className="mt-5 grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-3">
                     <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
+                    <SummaryValue label="Delivery fee" value={money.format(result.totals.deliveryFee)} />
+                    <SummaryValue label="Delivery tax" value={money.format(result.totals.deliveryTax)} />
                     <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
                     <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
                   </div>

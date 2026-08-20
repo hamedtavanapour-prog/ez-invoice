@@ -16,6 +16,8 @@ export type LcboInvoice = {
   expectedDeliveryDate: string;
   items: LcboItem[];
   totals: {
+    deliveryFee: number;
+    deliveryTax: number;
     total: number;
     hstIncluded: number;
     containerDepositIncluded: number;
@@ -147,6 +149,12 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
   const total = parseMoney(
     requireMatch(rawText, /^Total:\s*(\$[\d,.]+)/im, "invoice total"),
   );
+  const deliveryFee = parseMoney(
+    requireMatch(rawText, /^Delivery Fee:\s*(\$[\d,.]+)/im, "delivery fee"),
+  );
+  const deliveryTax = parseMoney(
+    requireMatch(rawText, /^Delivery Tax:\s*(\$[\d,.]+)/im, "delivery tax"),
+  );
   const hstIncluded = parseMoney(
     requireMatch(rawText, /^HST Included in Total:\s*(\$[\d,.]+)/im, "included HST"),
   );
@@ -164,6 +172,8 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
     expectedDeliveryDate: items[0].expectedDeliveryDate,
     items,
     totals: {
+      deliveryFee,
+      deliveryTax,
       total,
       hstIncluded,
       containerDepositIncluded,

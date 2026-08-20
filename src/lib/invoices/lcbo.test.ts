@@ -28,6 +28,8 @@ Unit Price: $7.38
 Bottle Deposit(incl.): $0.10
 Size mL: 200
 Expected Delivery Date: 2026-08-05
+Delivery Fee: $5.00
+Delivery Tax: $0.65
 Total: $249.50
 HST Included in Total: $28.70
 Container Deposit Included in Total: $2.80
@@ -55,5 +57,7 @@ test("parses LCBO fields, multi-line names, and page-split items", () => {
   assert.equal(invoice.items[1].unitPrice, 7.38);
   assert.equal(invoice.items[1].calculatedTotal, 154.62);
   assert.equal(invoice.totals.calculatedProductTotal, 207.58);
+  assert.equal(invoice.totals.deliveryFee, 5);
+  assert.equal(invoice.totals.deliveryTax, 0.65);
   assert.equal(invoice.totals.hstIncluded, 28.7);
 });
