@@ -3,6 +3,7 @@
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 
 import type { LcboInvoice } from "@/lib/invoices/lcbo";
+import { InvoiceLogo } from "./invoice-logo";
 
 type Supplier = "lcbo" | "beer-store";
 
@@ -59,6 +60,23 @@ function DownloadIcon() {
   );
 }
 
+function SunIcon() {
+  return (
+    <svg aria-hidden="true" className="theme-toggle-icon theme-toggle-sun" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="3.5" />
+      <path d="M12 2v2.2M12 19.8V22M4.93 4.93l1.56 1.56m11.02 11.02 1.56 1.56M2 12h2.2M19.8 12H22M4.93 19.07l1.56-1.56M17.51 6.49l1.56-1.56" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg aria-hidden="true" className="theme-toggle-icon theme-toggle-moon" viewBox="0 0 24 24" fill="none">
+      <path d="M19.5 15.2A7.7 7.7 0 018.8 4.5 8 8 0 1019.5 15.2z" />
+    </svg>
+  );
+}
+
 function formatBytes(bytes: number) {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
@@ -73,6 +91,7 @@ export function InvoiceWorkspace() {
   const [notice, setNotice] = useState<string | null>(null);
   const [result, setResult] = useState<LcboInvoice | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
   function acceptFile(nextFile?: File) {
     setNotice(null);
@@ -143,27 +162,40 @@ export function InvoiceWorkspace() {
   }
 
   return (
-    <main className="min-h-screen bg-[var(--canvas)] text-[var(--ink)]">
+    <div data-theme={isDark ? "dark" : "light"} className="flex min-h-screen flex-col bg-[var(--canvas)] text-[var(--ink)]">
       <header className="border-b border-[var(--line)] bg-[color:var(--surface)/0.92]">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8">
           <div className="flex items-center gap-3">
-            <div className="grid size-9 place-items-center rounded-xl bg-[var(--brand)] text-sm font-bold text-white shadow-[0_6px_18px_rgba(35,111,180,0.22)]">EZ</div>
+            <InvoiceLogo className="h-8 w-10" />
             <div>
               <p className="text-sm font-semibold tracking-[-0.01em]">EZ Invoice</p>
               <p className="text-[11px] text-[var(--muted)]">Invoice calculator</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs font-medium text-[var(--muted)]">
-            <span className="size-2 rounded-full bg-sky-500 shadow-[0_0_0_4px_rgba(14,165,233,0.12)]" />
-            LCBO ready
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isDark}
+              aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+              className="theme-toggle"
+              onClick={() => setIsDark((current) => !current)}
+            >
+              <SunIcon />
+              <MoonIcon />
+              <span className="theme-toggle-thumb" aria-hidden="true" />
+            </button>
+            <a className="rounded-lg px-2 py-2 text-xs font-semibold text-[var(--muted)] transition hover:bg-[var(--soft-blue)] hover:text-[var(--brand)] sm:px-3" href="#privacy">Privacy</a>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+      <main className="flex-1">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
         <div className="mb-8 max-w-3xl">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">One invoice. Clear numbers.</p>
           <h1 className="text-balance text-[34px] font-semibold leading-[1.05] tracking-[-0.045em] sm:text-5xl">Upload once. Get the complete breakdown.</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">Turn an LCBO shipped-order invoice into a clear calculation breakdown and downloadable report in seconds.</p>
         </div>
 
         <section className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-4 shadow-[var(--card-shadow)] sm:rounded-[28px] sm:p-6" aria-label="Invoice upload">
@@ -177,8 +209,8 @@ export function InvoiceWorkspace() {
                 <button type="button" role="radio" aria-checked={supplier === "lcbo"} onClick={() => { setSupplier("lcbo"); setNotice(null); setResult(null); }} className={`supplier-button ${supplier === "lcbo" ? "supplier-button-active" : ""}`}>
                   <span className="supplier-mark bg-[#7b1e3b]">L</span><span><strong>LCBO</strong><small>Liquor</small></span>
                 </button>
-                <button type="button" role="radio" aria-checked={supplier === "beer-store"} onClick={() => { setSupplier("beer-store"); setResult(null); setNotice("The Beer Store calculation rules have not been added yet."); }} className={`supplier-button ${supplier === "beer-store" ? "supplier-button-active" : ""}`}>
-                  <span className="supplier-mark bg-[#e4a400] text-[#322600]">B</span><span><strong>Beer Store</strong><small>Beer</small></span>
+                <button type="button" role="radio" aria-checked={false} aria-disabled="true" disabled className="supplier-button supplier-button-disabled">
+                  <span className="supplier-mark">B</span><span><strong>Beer Store</strong><small>Coming soon</small></span>
                 </button>
               </div>
             </div>
@@ -214,7 +246,7 @@ export function InvoiceWorkspace() {
               <button type="button" disabled={!file || isProcessing} onClick={handleProcess} className="primary-button">
                 {isProcessing ? "Reading invoice…" : "Process invoice"}{!isProcessing && <span aria-hidden="true">→</span>}
               </button>
-              <p className="mt-3 text-center text-[10px] leading-4 text-[var(--muted)]">Processed securely and not stored.</p>
+              <p className="mt-3 text-center text-[10px] leading-4 text-[var(--muted)]">Processed for this request only. Nothing is stored.</p>
             </div>
           </div>
           {error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700" role="alert">{error}</p>}
@@ -235,8 +267,8 @@ export function InvoiceWorkspace() {
                 </form>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 bg-[#f2f7fc] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-7">
-                <div className="flex min-h-24 flex-col rounded-xl bg-[var(--ink)] p-4 text-white sm:rounded-2xl"><p className="min-h-7 text-[11px] leading-4 text-white/60">Calculated product total</p><p className="mt-auto pt-2 text-xl font-semibold tracking-[-0.04em] sm:text-[22px]">{money.format(result.totals.calculatedProductTotal)}</p></div>
+              <div className="grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-7">
+                <div className="flex min-h-24 flex-col rounded-xl bg-[var(--contrast-card)] p-4 text-white sm:rounded-2xl"><p className="min-h-7 text-[11px] leading-4 text-white/60">Calculated product total</p><p className="mt-auto pt-2 text-xl font-semibold tracking-[-0.04em] sm:text-[22px]">{money.format(result.totals.calculatedProductTotal)}</p></div>
                 <SummaryValue label="Delivery fee" value={result.totals.deliveryFee === null ? "Not provided" : money.format(result.totals.deliveryFee)} />
                 <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
                 <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
@@ -265,13 +297,44 @@ export function InvoiceWorkspace() {
               </div>
             </div>
           ) : (
-            <div className="grid min-h-[300px] place-items-center rounded-[24px] border border-dashed border-[#aac1d5] bg-[color:var(--surface)/0.72] px-5 text-center sm:min-h-[360px] sm:rounded-[30px] sm:px-6">
-              <div className="max-w-md"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--soft-blue)] text-xl font-semibold text-[var(--brand)]">03</span><h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em]">Your full results will appear here</h2><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Upload an LCBO invoice above to see the larger product table, totals, and downloadable PDF.</p></div>
+            <div className="grid min-h-[300px] place-items-center rounded-[24px] border border-dashed border-[var(--dash)] bg-[color:var(--surface)/0.72] px-5 text-center sm:min-h-[360px] sm:rounded-[30px] sm:px-6">
+              <div className="max-w-md"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--soft-blue)] text-xl font-semibold text-[var(--brand)]">03</span><h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em]">Your full results will appear here</h2><p className="mt-3 text-sm leading-6 text-[var(--muted)]">{supplier === "lcbo" ? "Upload an LCBO invoice above to see the larger product table, totals, and downloadable PDF." : "Beer Store invoice processing is coming soon."}</p></div>
             </div>
           )}
         </section>
-      </div>
-    </main>
+        </div>
+      </main>
+
+      <footer id="privacy" className="scroll-mt-6 bg-[var(--footer-bg)] text-white">
+        <div className="mx-auto max-w-7xl px-4 py-9 sm:px-6 sm:py-11 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.7fr_1.3fr] lg:items-start">
+            <div>
+              <div className="flex items-center gap-3">
+                <InvoiceLogo className="h-8 w-10" onDark />
+                <div><p className="text-sm font-semibold">EZ Invoice</p><p className="mt-0.5 text-xs text-white/55">Clear invoice calculations</p></div>
+              </div>
+              <p className="mt-4 max-w-sm text-sm leading-6 text-white/65">A focused tool for reviewing invoice calculations without creating an account or building a record of your invoices.</p>
+            </div>
+
+            <section aria-labelledby="privacy-title" className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 sm:p-6">
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9fd3ff]">Privacy by design</p>
+              <h2 id="privacy-title" className="mt-2 text-xl font-semibold tracking-[-0.02em]">Your invoice remains yours.</h2>
+              <p className="mt-3 text-sm leading-6 text-white/70">Invoice files are processed only to complete your current calculation. EZ Invoice does not save the uploaded file, extracted invoice data, or generated report to a database. The result displayed on this page exists only for the current page session and is cleared when you refresh or close it.</p>
+              <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-white/75">
+                <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">No account required</span>
+                <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">No invoice storage</span>
+                <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">No database record</span>
+              </div>
+            </section>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-2 border-t border-white/10 pt-5 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
+            <p>EZ Invoice</p>
+            <p>Private invoice calculations, built for clarity.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
 

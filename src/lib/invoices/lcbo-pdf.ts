@@ -12,20 +12,67 @@ const navy: [number, number, number] = [11, 31, 58];
 const blue: [number, number, number] = [35, 111, 180];
 const lightBlue: [number, number, number] = [235, 245, 253];
 
+function drawInvoiceLogo(document: jsPDF, x: number, y: number, width: number) {
+  const scale = width / 48;
+
+  document.setDrawColor(159, 211, 255);
+  document.setLineWidth(4.6 * scale);
+  document.setLineCap("round");
+  document.setLineJoin("round");
+  document.lines(
+    [
+      [14 * scale, 0],
+      [5 * scale, 2.5 * scale],
+      [6.2 * scale, 7 * scale],
+    ],
+    x + 4 * scale,
+    y + 7 * scale,
+    [1, 1],
+    "S",
+    false,
+  );
+  document.lines(
+    [
+      [12 * scale, 0],
+      [5 * scale, 2.5 * scale],
+      [5 * scale, 5.5 * scale],
+    ],
+    x + 4 * scale,
+    y + 18 * scale,
+    [1, 1],
+    "S",
+    false,
+  );
+  document.lines(
+    [
+      [10 * scale, 0],
+      [5 * scale, 2.5 * scale],
+      [3.2 * scale, 3.5 * scale],
+      [21.8 * scale, -26 * scale],
+    ],
+    x + 4 * scale,
+    y + 29 * scale,
+    [1, 1],
+    "S",
+    false,
+  );
+}
+
 export function createLcboPdf(invoice: LcboInvoice) {
   const document = new jsPDF({ format: "letter", unit: "pt" });
   const pageWidth = document.internal.pageSize.getWidth();
 
   document.setFillColor(...navy);
   document.rect(0, 0, pageWidth, 126, "F");
+  drawInvoiceLogo(document, 42, 31, 40);
   document.setTextColor(255, 255, 255);
   document.setFont("helvetica", "bold");
   document.setFontSize(22);
-  document.text("LCBO Invoice Calculation", 42, 48);
+  document.text("LCBO Invoice Calculation", 88, 50);
   document.setFont("helvetica", "normal");
   document.setFontSize(10);
   document.setTextColor(211, 230, 247);
-  document.text(`Order ${invoice.orderNumber}`, 42, 75);
+  document.text(`Order ${invoice.orderNumber}`, 88, 74);
   document.text(`Order date: ${invoice.orderDate}`, 42, 94);
   document.text(
     invoice.expectedDeliveryDate
