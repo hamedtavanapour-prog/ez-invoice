@@ -2,7 +2,6 @@
 
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 
-import { createLcboCsv } from "@/lib/invoices/lcbo-csv";
 import type { LcboInvoice } from "@/lib/invoices/lcbo";
 
 type Supplier = "lcbo" | "beer-store";
@@ -138,10 +137,6 @@ export function InvoiceWorkspace() {
     }
   }
 
-  const downloadHref = result
-    ? `data:text/csv;charset=utf-8,${encodeURIComponent(`\uFEFF${createLcboCsv(result)}`)}`
-    : undefined;
-
   return (
     <main className="min-h-screen bg-[var(--canvas)] text-[var(--ink)]">
       <header className="border-b border-[var(--line)] bg-[color:var(--surface)/0.92]">
@@ -229,15 +224,18 @@ export function InvoiceWorkspace() {
                   <div className="flex items-center gap-3"><h2 className="text-2xl font-semibold tracking-[-0.03em]">Order {result.orderNumber}</h2><span className="rounded-full bg-[var(--soft-green)] px-3 py-1 text-[11px] font-medium text-[var(--brand)]">{result.items.length} items</span></div>
                   <p className="mt-2 text-sm text-[var(--muted)]">Order date {result.orderDate} · Expected {formatDate(result.expectedDeliveryDate)}</p>
                 </div>
-                <a className="download-button" href={downloadHref} download={`lcbo-order-${result.orderNumber}.csv`}><DownloadIcon />Download CSV</a>
+                <form action="/api/invoices/lcbo/pdf" method="post">
+                  <input type="hidden" name="invoice" value={JSON.stringify(result)} />
+                  <button className="download-button" type="submit"><DownloadIcon />Download PDF</button>
+                </form>
               </div>
 
               <div className="grid gap-4 bg-[#fafaf6] p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-5">
                 <div className="rounded-2xl bg-[var(--ink)] p-5 text-white sm:col-span-2 lg:col-span-1"><p className="text-xs text-white/60">Calculated product total</p><p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{money.format(result.totals.calculatedProductTotal)}</p></div>
-                <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
                 <SummaryValue label="Delivery fee" value={money.format(result.totals.deliveryFee)} />
                 <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
                 <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
+                <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
               </div>
 
               <div className="px-6 py-7 sm:px-8">
@@ -260,7 +258,7 @@ export function InvoiceWorkspace() {
             </div>
           ) : (
             <div className="grid min-h-[360px] place-items-center rounded-[30px] border border-dashed border-[#bcc5c0] bg-[color:var(--surface)/0.72] px-6 text-center">
-              <div className="max-w-md"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--soft-green)] text-xl font-semibold text-[var(--brand)]">03</span><h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em]">Your full results will appear here</h2><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Upload an LCBO invoice above to see the larger product table, totals, and downloadable CSV.</p></div>
+              <div className="max-w-md"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--soft-green)] text-xl font-semibold text-[var(--brand)]">03</span><h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em]">Your full results will appear here</h2><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Upload an LCBO invoice above to see the larger product table, totals, and downloadable PDF.</p></div>
             </div>
           )}
         </section>
