@@ -82,3 +82,10 @@ test("processes invoices without optional delivery fields", () => {
   assert.equal(invoice.totals.calculatedInvoiceTotal, 239.08);
   assert.equal(invoice.totals.difference, 10.42);
 });
+
+test("uses a negative difference when the calculated invoice total is higher", () => {
+  const invoice = parseLcboInvoiceText(sampleText.replace("Total: $249.50", "Total: $240.00"));
+
+  assert.equal(invoice.totals.calculatedInvoiceTotal, 244.73);
+  assert.equal(invoice.totals.difference, -4.73);
+});

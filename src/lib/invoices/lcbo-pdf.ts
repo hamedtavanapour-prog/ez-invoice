@@ -4,6 +4,10 @@ import autoTable from "jspdf-autotable";
 import type { LcboInvoice } from "./lcbo";
 
 const money = (value: number) => `$${value.toFixed(2)}`;
+const signedMoney = (value: number) => {
+  if (value === 0) return money(0);
+  return `${value > 0 ? "+" : "-"}${money(Math.abs(value))}`;
+};
 const navy: [number, number, number] = [11, 31, 58];
 const blue: [number, number, number] = [35, 111, 180];
 const lightBlue: [number, number, number] = [235, 245, 253];
@@ -84,7 +88,7 @@ export function createLcboPdf(invoice: LcboInvoice) {
     ["Container deposit", money(invoice.totals.containerDepositIncluded)],
     ["Calculated invoice total", money(invoice.totals.calculatedInvoiceTotal)],
     ["LCBO invoice total", money(invoice.totals.total)],
-    ["Difference", money(invoice.totals.difference)],
+    ["Difference", signedMoney(invoice.totals.difference)],
   ];
 
   autoTable(document, {

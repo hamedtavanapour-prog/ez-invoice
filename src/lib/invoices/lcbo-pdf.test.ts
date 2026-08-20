@@ -27,7 +27,7 @@ const invoice: LcboInvoice = {
     containerDepositIncluded: 0.4,
     calculatedProductTotal: 52.96,
     calculatedInvoiceTotal: 65.94,
-    difference: 5.7,
+    difference: -5.7,
   },
 };
 

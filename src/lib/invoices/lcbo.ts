@@ -188,7 +188,7 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
       containerDepositIncluded,
       calculatedProductTotal,
       calculatedInvoiceTotal: roundCurrency(calculatedInvoiceTotal),
-      difference: roundCurrency(Math.abs(total - calculatedInvoiceTotal)),
+      difference: roundCurrency(total - calculatedInvoiceTotal),
     },
   };
 }

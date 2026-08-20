@@ -20,6 +20,11 @@ const preciseMoney = new Intl.NumberFormat("en-CA", {
   maximumFractionDigits: 4,
 });
 
+function formatSignedMoney(value: number) {
+  if (value === 0) return money.format(0);
+  return `${value > 0 ? "+" : "−"}${money.format(Math.abs(value))}`;
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-CA", {
     month: "short",
@@ -237,7 +242,7 @@ export function InvoiceWorkspace() {
                 <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
                 <SummaryValue label="Calculated invoice total" value={money.format(result.totals.calculatedInvoiceTotal)} />
                 <SummaryValue label="LCBO invoice total" value={money.format(result.totals.total)} />
-                <SummaryValue label="Difference" value={money.format(result.totals.difference)} />
+                <SummaryValue label="Difference" value={formatSignedMoney(result.totals.difference)} />
               </div>
 
               <div className="px-6 py-7 sm:px-8">
