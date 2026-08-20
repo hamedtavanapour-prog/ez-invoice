@@ -20,8 +20,12 @@ export async function POST(request: Request) {
       return Response.json({ error: "The invoice PDF must be 4 MB or smaller." }, { status: 413 });
     }
 
+    const { CanvasFactory } = await import("pdf-parse/worker");
     const { PDFParse } = await import("pdf-parse");
-    const parser = new PDFParse({ data: Buffer.from(await invoice.arrayBuffer()) });
+    const parser = new PDFParse({
+      CanvasFactory,
+      data: Buffer.from(await invoice.arrayBuffer()),
+    });
 
     try {
       const extracted = await parser.getText();
