@@ -37,6 +37,11 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Xcode user and build state
+**/xcuserdata/
+*.xcuserstate
+DerivedData/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
