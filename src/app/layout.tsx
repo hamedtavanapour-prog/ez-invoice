@@ -15,6 +15,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "EZ Invoice",
   description: "LCBO and The Beer Store invoice calculator.",
+  applicationName: "EZ Invoice",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "EZ Invoice",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
