@@ -2,6 +2,7 @@
 
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 
+import { createLcboCsv } from "@/lib/invoices/lcbo-csv";
 import type { LcboInvoice } from "@/lib/invoices/lcbo";
 
 type Supplier = "lcbo" | "beer-store";
@@ -42,6 +43,14 @@ function FileIcon() {
     <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
       <path d="M7 3.75h6.4L18 8.35v11.9H7V3.75z" />
       <path d="M13 3.75v5h5M9.5 13h6M9.5 16h4" />
+    </svg>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+      <path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19.5h14" />
     </svg>
   );
 }
@@ -129,14 +138,16 @@ export function InvoiceWorkspace() {
     }
   }
 
+  const downloadHref = result
+    ? `data:text/csv;charset=utf-8,${encodeURIComponent(`\uFEFF${createLcboCsv(result)}`)}`
+    : undefined;
+
   return (
     <main className="min-h-screen bg-[var(--canvas)] text-[var(--ink)]">
       <header className="border-b border-[var(--line)] bg-[color:var(--surface)/0.92]">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8">
           <div className="flex items-center gap-3">
-            <div className="grid size-9 place-items-center rounded-xl bg-[var(--brand)] text-sm font-bold text-white shadow-[0_6px_18px_rgba(26,87,68,0.2)]">
-              EZ
-            </div>
+            <div className="grid size-9 place-items-center rounded-xl bg-[var(--brand)] text-sm font-bold text-white shadow-[0_6px_18px_rgba(26,87,68,0.2)]">EZ</div>
             <div>
               <p className="text-sm font-semibold tracking-[-0.01em]">EZ Invoice</p>
               <p className="text-[11px] text-[var(--muted)]">Invoice calculator</p>
@@ -149,184 +160,119 @@ export function InvoiceWorkspace() {
         </div>
       </header>
 
-      <section className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-[minmax(360px,0.82fr)_minmax(500px,1.18fr)] lg:gap-10">
-        <div>
-          <div className="mb-9 max-w-2xl">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">
-              One invoice. Clear numbers.
-            </p>
-            <h1 className="text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.045em] sm:text-5xl">
-              Turn supplier invoices into usable totals.
-            </h1>
-            <p className="mt-5 max-w-xl text-base leading-7 text-[var(--muted)] sm:text-lg">
-              Upload an LCBO or The Beer Store invoice. The tool will extract the details, apply your rules, and show the final breakdown.
-            </p>
-          </div>
-
-          <div className="rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[var(--card-shadow)] sm:p-7">
-            <div className="mb-5 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold">1. Choose invoice type</p>
-                <p className="mt-1 text-xs text-[var(--muted)]">This selects the calculation rules.</p>
-              </div>
-              <span className="rounded-full bg-[var(--soft-green)] px-3 py-1 text-[11px] font-semibold text-[var(--brand)]">
-                Step 1 of 2
-              </span>
-            </div>
-
-            <div className="mb-6 grid grid-cols-2 gap-3" role="radiogroup" aria-label="Invoice supplier">
-              <button type="button" role="radio" aria-checked={supplier === "lcbo"} onClick={() => { setSupplier("lcbo"); setNotice(null); setResult(null); }} className={`supplier-button ${supplier === "lcbo" ? "supplier-button-active" : ""}`}>
-                <span className="supplier-mark bg-[#7b1e3b]">L</span>
-                <span><strong>LCBO</strong><small>Liquor invoice</small></span>
-              </button>
-              <button type="button" role="radio" aria-checked={supplier === "beer-store"} onClick={() => { setSupplier("beer-store"); setResult(null); setNotice("The Beer Store calculation rules have not been added yet."); }} className={`supplier-button ${supplier === "beer-store" ? "supplier-button-active" : ""}`}>
-                <span className="supplier-mark bg-[#e4a400] text-[#322600]">B</span>
-                <span><strong>The Beer Store</strong><small>Beer invoice</small></span>
-              </button>
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm font-semibold">2. Upload invoice</p>
-              <p className="mt-1 text-xs text-[var(--muted)]">LCBO shipped-order PDF, up to 4 MB.</p>
-            </div>
-
-            <div
-              onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
-              onDragOver={(event) => event.preventDefault()}
-              onDragLeave={() => setIsDragging(false)}
-              onDrop={handleDrop}
-              className={`upload-zone ${isDragging ? "upload-zone-active" : ""}`}
-            >
-              <input ref={inputRef} className="sr-only" type="file" accept=".pdf,application/pdf" onChange={handleInput} />
-
-              {file ? (
-                <div className="flex w-full items-center gap-4 text-left">
-                  <span className="file-icon"><FileIcon /></span>
-                  <span className="min-w-0 flex-1">
-                    <strong className="block truncate text-sm">{file.name}</strong>
-                    <small className="mt-1 block text-xs text-[var(--muted)]">{formatBytes(file.size)} · Ready to process</small>
-                  </span>
-                  <button type="button" className="rounded-lg px-3 py-2 text-xs font-semibold text-[var(--brand)] hover:bg-[var(--soft-green)]" onClick={() => inputRef.current?.click()}>
-                    Replace
-                  </button>
-                </div>
-              ) : (
-                <button type="button" className="flex flex-col items-center" onClick={() => inputRef.current?.click()}>
-                  <span className="upload-icon"><UploadIcon /></span>
-                  <strong className="mt-4 text-sm">Drop your invoice here</strong>
-                  <span className="mt-1 text-xs text-[var(--muted)]">or click to choose a file</span>
-                </button>
-              )}
-            </div>
-
-            {error && <p className="mt-3 text-sm font-medium text-red-700" role="alert">{error}</p>}
-            {notice && <p className="mt-3 rounded-xl bg-[var(--soft-green)] px-4 py-3 text-sm leading-5 text-[var(--brand)]" role="status">{notice}</p>}
-
-            <button type="button" disabled={!file || isProcessing} onClick={handleProcess} className="primary-button mt-5">
-              {isProcessing ? "Reading invoice…" : "Process invoice"} {!isProcessing && <span aria-hidden="true">→</span>}
-            </button>
-            <p className="mt-3 text-center text-[11px] text-[var(--muted)]">
-              The PDF is processed for this result and is not stored.
-            </p>
-          </div>
+      <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14">
+        <div className="mb-8 max-w-3xl">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">One invoice. Clear numbers.</p>
+          <h1 className="text-balance text-4xl font-semibold leading-[1.05] tracking-[-0.045em] sm:text-5xl">Upload once. Get the complete breakdown.</h1>
         </div>
 
-        <aside className="lg:pt-29" aria-live="polite">
-          <div className="overflow-hidden rounded-[28px] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--card-shadow)]">
-            <div className="border-b border-[var(--line)] px-6 py-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold">
-                    {result ? `Expected delivery · ${formatDate(result.expectedDeliveryDate)}` : "Calculation result"}
-                  </p>
-                  {result && <p className="mt-1 text-xs text-[var(--muted)]">Order {result.orderNumber} · {result.orderDate}</p>}
-                </div>
-                <span className={`rounded-full px-3 py-1 text-[11px] font-medium ${result ? "bg-[var(--soft-green)] text-[var(--brand)]" : "bg-[var(--canvas)] text-[var(--muted)]"}`}>
-                  {result ? `${result.items.length} items` : isProcessing ? "Reading" : "Waiting"}
-                </span>
+        <section className="rounded-[28px] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[var(--card-shadow)] sm:p-6" aria-label="Invoice upload">
+          <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(260px,0.85fr)_minmax(420px,1.5fr)_190px]">
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <div><p className="text-sm font-semibold">Invoice type</p><p className="mt-1 text-xs text-[var(--muted)]">Choose the supplier rules.</p></div>
+                <span className="rounded-full bg-[var(--soft-green)] px-3 py-1 text-[10px] font-semibold text-[var(--brand)]">Step 1</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Invoice supplier">
+                <button type="button" role="radio" aria-checked={supplier === "lcbo"} onClick={() => { setSupplier("lcbo"); setNotice(null); setResult(null); }} className={`supplier-button ${supplier === "lcbo" ? "supplier-button-active" : ""}`}>
+                  <span className="supplier-mark bg-[#7b1e3b]">L</span><span><strong>LCBO</strong><small>Liquor</small></span>
+                </button>
+                <button type="button" role="radio" aria-checked={supplier === "beer-store"} onClick={() => { setSupplier("beer-store"); setResult(null); setNotice("The Beer Store calculation rules have not been added yet."); }} className={`supplier-button ${supplier === "beer-store" ? "supplier-button-active" : ""}`}>
+                  <span className="supplier-mark bg-[#e4a400] text-[#322600]">B</span><span><strong>Beer Store</strong><small>Beer</small></span>
+                </button>
               </div>
             </div>
-            {result ? (
-              <div>
-                <div className="max-h-[570px] overflow-y-auto">
+
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <div><p className="text-sm font-semibold">Upload invoice</p><p className="mt-1 text-xs text-[var(--muted)]">LCBO shipped-order PDF, up to 4 MB.</p></div>
+                <span className="rounded-full bg-[var(--canvas)] px-3 py-1 text-[10px] font-semibold text-[var(--muted)]">Step 2</span>
+              </div>
+              <div
+                onDragEnter={(event) => { event.preventDefault(); setIsDragging(true); }}
+                onDragOver={(event) => event.preventDefault()}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                className={`upload-zone upload-zone-horizontal ${isDragging ? "upload-zone-active" : ""}`}
+              >
+                <input ref={inputRef} className="sr-only" type="file" accept=".pdf,application/pdf" onChange={handleInput} />
+                {file ? (
+                  <div className="flex w-full items-center gap-4 text-left">
+                    <span className="file-icon"><FileIcon /></span>
+                    <span className="min-w-0 flex-1"><strong className="block truncate text-sm">{file.name}</strong><small className="mt-1 block text-xs text-[var(--muted)]">{formatBytes(file.size)} · Ready to process</small></span>
+                    <button type="button" className="rounded-lg px-3 py-2 text-xs font-semibold text-[var(--brand)] hover:bg-[var(--soft-green)]" onClick={() => inputRef.current?.click()}>Replace</button>
+                  </div>
+                ) : (
+                  <button type="button" className="flex w-full items-center justify-center gap-4 text-left" onClick={() => inputRef.current?.click()}>
+                    <span className="upload-icon"><UploadIcon /></span><span><strong className="block text-sm">Drop your invoice here</strong><span className="mt-1 block text-xs text-[var(--muted)]">or click to choose a PDF</span></span>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-end">
+              <button type="button" disabled={!file || isProcessing} onClick={handleProcess} className="primary-button">
+                {isProcessing ? "Reading invoice…" : "Process invoice"}{!isProcessing && <span aria-hidden="true">→</span>}
+              </button>
+              <p className="mt-3 text-center text-[10px] leading-4 text-[var(--muted)]">Processed securely and not stored.</p>
+            </div>
+          </div>
+          {error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700" role="alert">{error}</p>}
+          {notice && <p className="mt-4 rounded-xl bg-[var(--soft-green)] px-4 py-3 text-sm leading-5 text-[var(--brand)]" role="status">{notice}</p>}
+        </section>
+
+        <section className="mt-8" aria-live="polite" aria-label="Invoice calculation results">
+          {result ? (
+            <div className="overflow-hidden rounded-[30px] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--card-shadow)]">
+              <div className="flex flex-col gap-5 border-b border-[var(--line)] px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                <div>
+                  <div className="flex items-center gap-3"><h2 className="text-2xl font-semibold tracking-[-0.03em]">Order {result.orderNumber}</h2><span className="rounded-full bg-[var(--soft-green)] px-3 py-1 text-[11px] font-medium text-[var(--brand)]">{result.items.length} items</span></div>
+                  <p className="mt-2 text-sm text-[var(--muted)]">Order date {result.orderDate} · Expected {formatDate(result.expectedDeliveryDate)}</p>
+                </div>
+                <a className="download-button" href={downloadHref} download={`lcbo-order-${result.orderNumber}.csv`}><DownloadIcon />Download CSV</a>
+              </div>
+
+              <div className="grid gap-4 bg-[#fafaf6] p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-5">
+                <div className="rounded-2xl bg-[var(--ink)] p-5 text-white sm:col-span-2 lg:col-span-1"><p className="text-xs text-white/60">Calculated product total</p><p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{money.format(result.totals.calculatedProductTotal)}</p></div>
+                <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
+                <SummaryValue label="Delivery fee" value={money.format(result.totals.deliveryFee)} />
+                <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
+                <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
+              </div>
+
+              <div className="px-6 py-7 sm:px-8">
+                <div className="result-grid hidden border-b border-[var(--line)] px-4 pb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)] md:grid">
+                  <span>Product</span><span>Fulfilled</span><span>Unit price</span><span>Deposit</span><span>Net unit</span><span className="text-right">Product total</span>
+                </div>
+                <div>
                   {result.items.map((item) => (
-                    <article key={item.lcboNumber} className="border-b border-[var(--line)] px-6 py-5 last:border-0">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h2 className="text-sm font-semibold leading-5">{item.name}</h2>
-                          <p className="mt-1 text-[11px] text-[var(--muted)]">LCBO #{item.lcboNumber} · {item.sizeMl} mL</p>
-                        </div>
-                        <strong className="whitespace-nowrap text-base text-[var(--brand)]">{money.format(item.calculatedTotal)}</strong>
-                      </div>
-                      <div className="mt-4 grid grid-cols-2 gap-x-5 gap-y-2 text-xs sm:grid-cols-4">
-                        <ResultValue label="Fulfilled" value={String(item.quantityFulfilled)} />
-                        <ResultValue label="Unit price" value={money.format(item.unitPrice)} />
-                        <ResultValue label="Deposit" value={`− ${money.format(item.bottleDeposit)}`} />
-                        <ResultValue label="Net unit" value={preciseMoney.format(item.netUnitPrice)} />
-                      </div>
+                    <article key={item.lcboNumber} className="result-grid border-b border-[var(--line)] px-4 py-5 last:border-0 md:grid md:items-center">
+                      <div className="mb-4 md:mb-0"><h3 className="text-base font-semibold leading-5">{item.name}</h3><p className="mt-1 text-xs text-[var(--muted)]">LCBO #{item.lcboNumber} · {item.sizeMl} mL</p></div>
+                      <ResultValue label="Fulfilled" value={String(item.quantityFulfilled)} />
+                      <ResultValue label="Unit price" value={money.format(item.unitPrice)} />
+                      <ResultValue label="Deposit" value={`− ${money.format(item.bottleDeposit)}`} />
+                      <ResultValue label="Net unit" value={preciseMoney.format(item.netUnitPrice)} />
+                      <div className="mt-4 flex items-center justify-between border-t border-[var(--line)] pt-4 md:mt-0 md:block md:border-0 md:pt-0 md:text-right"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] md:hidden">Product total</span><strong className="text-lg text-[var(--brand)]">{money.format(item.calculatedTotal)}</strong></div>
                     </article>
                   ))}
                 </div>
-                <div className="border-t border-[var(--line)] bg-[#fafaf6] p-6">
-                  <div className="rounded-2xl bg-[var(--ink)] p-5 text-white">
-                    <p className="text-xs text-white/60">Calculated product total</p>
-                    <p className="mt-2 text-4xl font-semibold tracking-[-0.04em]">{money.format(result.totals.calculatedProductTotal)}</p>
-                    <p className="mt-3 text-[11px] text-white/55">(Unit price − deposit) ÷ 1.13 × fulfilled quantity</p>
-                  </div>
-                  <div className="mt-5 grid gap-3 text-xs sm:grid-cols-2 lg:grid-cols-3">
-                    <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
-                    <SummaryValue label="Delivery fee" value={money.format(result.totals.deliveryFee)} />
-                    <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
-                    <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
-                  </div>
-                </div>
-              </div>
-            ) : (
-            <div className="p-6">
-              <div className="rounded-2xl bg-[var(--ink)] p-5 text-white">
-                <p className="text-xs text-white/60">Calculated product total</p>
-                <p className="mt-2 text-4xl font-semibold tracking-[-0.04em]">—</p>
-                <p className="mt-4 text-xs text-white/50">Results will appear after processing</p>
-              </div>
-              <div className="mt-6 space-y-4">
-                {["Invoice subtotal", "Fees & deposits", "Adjustments", "Calculated amount"].map((label) => (
-                  <div key={label} className="flex items-center justify-between border-b border-[var(--line)] pb-4 last:border-0">
-                    <span className="text-sm text-[var(--muted)]">{label}</span>
-                    <span className="h-3 w-16 rounded-full bg-[var(--canvas)]" />
-                  </div>
-                ))}
               </div>
             </div>
-            )}
-          </div>
-          <div className="mt-5 grid grid-cols-3 gap-3 text-center">
-            {[["01", "Upload"], ["02", "Extract"], ["03", "Calculate"]].map(([number, label]) => (
-              <div key={number} className="rounded-2xl border border-[var(--line)] bg-[color:var(--surface)/0.7] px-2 py-4">
-                <span className="text-[10px] font-bold text-[var(--brand)]">{number}</span>
-                <p className="mt-1 text-xs font-medium">{label}</p>
-              </div>
-            ))}
-          </div>
-        </aside>
-      </section>
+          ) : (
+            <div className="grid min-h-[360px] place-items-center rounded-[30px] border border-dashed border-[#bcc5c0] bg-[color:var(--surface)/0.72] px-6 text-center">
+              <div className="max-w-md"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--soft-green)] text-xl font-semibold text-[var(--brand)]">03</span><h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em]">Your full results will appear here</h2><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Upload an LCBO invoice above to see the larger product table, totals, and downloadable CSV.</p></div>
+            </div>
+          )}
+        </section>
+      </div>
     </main>
   );
 }
 
 function ResultValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <span className="block text-[10px] uppercase tracking-[0.08em] text-[var(--muted)]">{label}</span>
-      <strong className="mt-1 block font-medium">{value}</strong>
-    </div>
-  );
+  return <div className="mb-3 flex items-center justify-between text-sm md:mb-0 md:block"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] md:hidden">{label}</span><strong className="font-medium">{value}</strong></div>;
 }
 
 function SummaryValue({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3">
-      <span className="block text-[10px] text-[var(--muted)]">{label}</span>
-      <strong className="mt-1 block text-sm">{value}</strong>
-    </div>
-  );
+  return <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5"><span className="block text-xs text-[var(--muted)]">{label}</span><strong className="mt-3 block text-xl tracking-[-0.02em]">{value}</strong></div>;
 }

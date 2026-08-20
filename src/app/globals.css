@@ -98,6 +98,11 @@ button:focus-visible {
   background: var(--soft-green);
 }
 
+.upload-zone-horizontal {
+  min-height: 92px;
+  padding: 16px;
+}
+
 .upload-icon,
 .file-icon {
   display: grid;
@@ -145,6 +150,40 @@ button:focus-visible {
   cursor: not-allowed;
   opacity: 0.42;
   box-shadow: none;
+}
+
+.download-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid var(--brand);
+  border-radius: 13px;
+  padding: 0 17px;
+  background: var(--brand);
+  color: white;
+  font-size: 13px;
+  font-weight: 650;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.download-button:hover {
+  background: #124735;
+  transform: translateY(-1px);
+}
+
+.download-button svg {
+  width: 18px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.result-grid {
+  grid-template-columns: minmax(260px, 2fr) 90px 110px 110px 130px 130px;
+  gap: 18px;
 }
 
 @media (max-width: 480px) {
