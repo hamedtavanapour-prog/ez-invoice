@@ -162,7 +162,7 @@ export function InvoiceWorkspace() {
   }
 
   return (
-    <div data-theme={isDark ? "dark" : "light"} className="flex min-h-screen flex-col bg-[var(--canvas)] text-[var(--ink)]">
+    <div data-theme={isDark ? "dark" : "light"} className="flex min-h-screen w-full flex-col overflow-x-hidden bg-[var(--canvas)] text-[var(--ink)]">
       <header className="border-b border-[var(--line)] bg-[color:var(--surface)/0.92]">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8">
           <div className="flex items-center gap-3">
@@ -191,21 +191,21 @@ export function InvoiceWorkspace() {
       </header>
 
       <main className="flex-1">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
-        <div className="mb-8 max-w-3xl">
+        <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+        <div className="mb-6 max-w-3xl sm:mb-8">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">One invoice. Clear numbers.</p>
-          <h1 className="text-balance text-[34px] font-semibold leading-[1.05] tracking-[-0.045em] sm:text-5xl">Upload once. Get the complete breakdown.</h1>
+          <h1 className="text-balance text-[30px] font-semibold leading-[1.06] tracking-[-0.045em] sm:text-5xl">Upload once. Get the complete breakdown.</h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">Turn an LCBO shipped-order invoice into a clear calculation breakdown and downloadable report in seconds.</p>
         </div>
 
-        <section className="rounded-[22px] border border-[var(--line)] bg-[var(--surface)] p-4 shadow-[var(--card-shadow)] sm:rounded-[28px] sm:p-6" aria-label="Invoice upload">
-          <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(260px,0.85fr)_minmax(420px,1.5fr)_190px]">
-            <div>
+        <section className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-3 shadow-[var(--card-shadow)] sm:rounded-[28px] sm:p-6" aria-label="Invoice upload">
+          <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(260px,0.85fr)_minmax(420px,1.5fr)_190px] lg:gap-5">
+            <div className="min-w-0">
               <div className="mb-3 flex items-center justify-between">
                 <div><p className="text-sm font-semibold">Invoice type</p><p className="mt-1 text-xs text-[var(--muted)]">Choose the supplier rules.</p></div>
                 <span className="rounded-full bg-[var(--soft-blue)] px-3 py-1 text-[10px] font-semibold text-[var(--brand)]">Step 1</span>
               </div>
-              <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Invoice supplier">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3" role="radiogroup" aria-label="Invoice supplier">
                 <button type="button" role="radio" aria-checked={supplier === "lcbo"} onClick={() => { setSupplier("lcbo"); setNotice(null); setResult(null); }} className={`supplier-button ${supplier === "lcbo" ? "supplier-button-active" : ""}`}>
                   <span className="supplier-mark bg-[#7b1e3b]">L</span><span><strong>LCBO</strong><small>Liquor</small></span>
                 </button>
@@ -215,7 +215,7 @@ export function InvoiceWorkspace() {
               </div>
             </div>
 
-            <div>
+            <div className="min-w-0">
               <div className="mb-3 flex items-center justify-between">
                 <div><p className="text-sm font-semibold">Upload invoice</p><p className="mt-1 text-xs text-[var(--muted)]">LCBO shipped-order PDF, up to 4 MB.</p></div>
                 <span className="rounded-full bg-[var(--canvas)] px-3 py-1 text-[10px] font-semibold text-[var(--muted)]">Step 2</span>
@@ -229,7 +229,7 @@ export function InvoiceWorkspace() {
               >
                 <input ref={inputRef} className="sr-only" type="file" accept=".pdf,application/pdf" onChange={handleInput} />
                 {file ? (
-                  <div className="flex w-full items-center gap-4 text-left">
+                  <div className="flex min-w-0 w-full items-center gap-3 text-left sm:gap-4">
                     <span className="file-icon"><FileIcon /></span>
                     <span className="min-w-0 flex-1"><strong className="block truncate text-sm">{file.name}</strong><small className="mt-1 block text-xs text-[var(--muted)]">{formatBytes(file.size)} · Ready to process</small></span>
                     <button type="button" className="rounded-lg px-3 py-2 text-xs font-semibold text-[var(--brand)] hover:bg-[var(--soft-blue)]" onClick={() => inputRef.current?.click()}>Replace</button>
@@ -253,22 +253,22 @@ export function InvoiceWorkspace() {
           {notice && <p className="mt-4 rounded-xl bg-[var(--soft-blue)] px-4 py-3 text-sm leading-5 text-[var(--brand)]" role="status">{notice}</p>}
         </section>
 
-        <section className="mt-8" aria-live="polite" aria-label="Invoice calculation results">
+        <section className="mt-6 sm:mt-8" aria-live="polite" aria-label="Invoice calculation results">
           {result ? (
-            <div className="overflow-hidden rounded-[30px] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--card-shadow)]">
-              <div className="flex flex-col gap-5 border-b border-[var(--line)] px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-6">
-                <div>
-                  <div className="flex flex-wrap items-center gap-3"><h2 className="text-xl font-semibold tracking-[-0.03em] sm:text-2xl">Order {result.orderNumber}</h2><span className="rounded-full bg-[var(--soft-blue)] px-3 py-1 text-[11px] font-medium text-[var(--brand)]">{result.items.length} items</span></div>
-                  <p className="mt-2 text-sm text-[var(--muted)]">Order date {result.orderDate}{result.expectedDeliveryDate ? ` · Expected ${formatDate(result.expectedDeliveryDate)}` : " · Delivery date not provided"}</p>
+            <div className="overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--card-shadow)] sm:rounded-[30px]">
+              <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] px-3 py-4 sm:items-center sm:px-8 sm:py-6">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3"><h2 className="text-lg font-semibold tracking-[-0.03em] sm:text-2xl">Order {result.orderNumber}</h2><span className="rounded-full bg-[var(--soft-blue)] px-2.5 py-1 text-[10px] font-medium text-[var(--brand)] sm:px-3 sm:text-[11px]">{result.items.length} items</span></div>
+                  <p className="mt-1.5 text-xs leading-5 text-[var(--muted)] sm:mt-2 sm:text-sm">Order date {result.orderDate}{result.expectedDeliveryDate ? ` · Expected ${formatDate(result.expectedDeliveryDate)}` : " · Delivery date not provided"}</p>
                 </div>
-                <form action="/api/invoices/lcbo/pdf" method="post" className="w-full sm:w-auto">
+                <form action="/api/invoices/lcbo/pdf" method="post" className="shrink-0">
                   <input type="hidden" name="invoice" value={JSON.stringify(result)} />
-                  <button className="download-button w-full" type="submit"><DownloadIcon />Download PDF</button>
+                  <button className="download-button" type="submit"><DownloadIcon /><span className="hidden sm:inline">Download PDF</span><span className="sm:hidden">PDF</span></button>
                 </form>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-7">
-                <div className="flex min-h-24 flex-col rounded-xl bg-[var(--contrast-card)] p-4 text-white sm:rounded-2xl"><p className="min-h-7 text-[11px] leading-4 text-white/60">Calculated product total</p><p className="mt-auto pt-2 text-xl font-semibold tracking-[-0.04em] sm:text-[22px]">{money.format(result.totals.calculatedProductTotal)}</p></div>
+              <div className="summary-grid grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-7">
+                <div className="summary-feature flex min-h-24 flex-col rounded-xl bg-[var(--contrast-card)] p-4 text-white sm:rounded-2xl"><p className="summary-label min-h-7 text-[11px] leading-4 text-white/60">Calculated product total</p><p className="summary-number mt-auto pt-2 text-xl font-semibold tracking-[-0.04em] sm:text-[22px]">{money.format(result.totals.calculatedProductTotal)}</p></div>
                 <SummaryValue label="Delivery fee" value={result.totals.deliveryFee === null ? "Not provided" : money.format(result.totals.deliveryFee)} />
                 <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
                 <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
@@ -277,20 +277,20 @@ export function InvoiceWorkspace() {
                 <SummaryValue label="Difference" value={formatSignedMoney(result.totals.difference)} />
               </div>
 
-              <div className="px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
+              <div className="px-3 py-3 sm:px-6 sm:py-7 lg:px-8">
                 <div className="result-grid hidden border-b border-[var(--line)] px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)] lg:grid">
                   <span>Product</span><span>Ordered</span><span>Unit price</span><span>Deposit</span><span className="result-group-divider">Fulfilled</span><span>Net unit</span><span className="text-right">Product total</span>
                 </div>
                 <div>
                   {result.items.map((item) => (
-                    <article key={item.lcboNumber} className="result-grid border-b border-[var(--line)] px-2 py-4 last:border-0 sm:px-3 lg:grid lg:items-center lg:py-5">
-                      <div className="mb-4 lg:mb-0"><h3 className="text-sm font-semibold leading-5 sm:text-base">{item.name}</h3><p className="mt-1 text-xs text-[var(--muted)]">LCBO #{item.lcboNumber} · {item.sizeMl} mL</p></div>
+                    <article key={item.lcboNumber} className="result-grid border-b border-[var(--line)] px-1 py-3 last:border-0 sm:px-3 sm:py-4 lg:grid lg:items-center lg:py-5">
+                      <div className="mb-3 lg:mb-0"><h3 className="text-sm font-semibold leading-5 sm:text-base">{item.name}</h3><p className="mt-1 text-[11px] text-[var(--muted)] sm:text-xs">LCBO #{item.lcboNumber} · {item.sizeMl} mL</p></div>
                       <ResultValue label="Quantity ordered" value={String(item.quantityOrdered)} />
                       <ResultValue label="Unit price" value={money.format(item.unitPrice)} />
                       <ResultValue label="Deposit" value={`− ${money.format(item.bottleDeposit)}`} />
                       <div className="result-group-divider"><ResultValue label="Fulfilled" value={String(item.quantityFulfilled)} /></div>
                       <ResultValue label="Net unit" value={preciseMoney.format(item.netUnitPrice)} />
-                      <div className="mt-4 flex items-center justify-between border-t border-[var(--line)] pt-4 lg:mt-0 lg:block lg:border-0 lg:pt-0 lg:text-right"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] lg:hidden">Product total</span><strong className="text-lg text-[var(--brand)]">{money.format(item.calculatedTotal)}</strong></div>
+                      <div className="mt-2 flex items-center justify-between border-t border-[var(--line)] pt-2 lg:mt-0 lg:block lg:border-0 lg:pt-0 lg:text-right"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] lg:hidden">Product total</span><strong className="text-base text-[var(--brand)] sm:text-lg">{money.format(item.calculatedTotal)}</strong></div>
                     </article>
                   ))}
                 </div>
@@ -339,9 +339,9 @@ export function InvoiceWorkspace() {
 }
 
 function ResultValue({ label, value }: { label: string; value: string }) {
-  return <div className="mb-3 flex items-center justify-between text-sm lg:mb-0 lg:block"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] lg:hidden">{label}</span><strong className="font-medium">{value}</strong></div>;
+  return <div className="result-value mb-3 flex items-center justify-between text-sm lg:mb-0 lg:block"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] lg:hidden">{label}</span><strong className="font-medium">{value}</strong></div>;
 }
 
 function SummaryValue({ label, value }: { label: string; value: string }) {
-  return <div className="flex min-h-24 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 sm:rounded-2xl"><span className="block min-h-7 text-[11px] leading-4 text-[var(--muted)]">{label}</span><strong className="mt-auto block pt-2 text-lg tracking-[-0.02em] sm:text-xl">{value}</strong></div>;
+  return <div className="summary-value flex min-h-24 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 sm:rounded-2xl"><span className="summary-label block min-h-7 text-[11px] leading-4 text-[var(--muted)]">{label}</span><strong className="summary-number mt-auto block pt-2 text-lg tracking-[-0.02em] sm:text-xl">{value}</strong></div>;
 }
