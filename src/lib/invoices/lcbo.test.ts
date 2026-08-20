@@ -20,6 +20,7 @@ Expected Delivery Date: 2026-08-05
 $60.24
 SECOND PRODUCT
 LCBO#: 17835
+Quantity Ordered: 24
 Quantity Fulfilled: 24
 $177.12
 -- 2 of 3 --
@@ -54,10 +55,28 @@ test("parses LCBO fields, multi-line names, and page-split items", () => {
   assert.equal(invoice.expectedDeliveryDate, "2026-08-05");
   assert.equal(invoice.items.length, 2);
   assert.equal(invoice.items[0].name, "FIRST PRODUCT NAME CONTINUED NAME");
+  assert.equal(invoice.items[0].quantityOrdered, 2);
+  assert.equal(invoice.items[1].quantityOrdered, 24);
   assert.equal(invoice.items[1].unitPrice, 7.38);
   assert.equal(invoice.items[1].calculatedTotal, 154.62);
   assert.equal(invoice.totals.calculatedProductTotal, 207.58);
   assert.equal(invoice.totals.deliveryFee, 5);
   assert.equal(invoice.totals.hstIncluded, 29.35);
+  assert.equal(invoice.totals.difference, 4.77);
   assert.equal("deliveryTax" in invoice.totals, false);
+});
+
+test("processes invoices without optional delivery fields", () => {
+  const invoice = parseLcboInvoiceText(
+    sampleText
+      .replace(/^Expected Delivery Date:.*$/gm, "")
+      .replace(/^Delivery Fee:.*$/gm, "")
+      .replace(/^Delivery Tax:.*$/gm, ""),
+  );
+
+  assert.equal(invoice.expectedDeliveryDate, null);
+  assert.equal(invoice.items.every((item) => item.expectedDeliveryDate === null), true);
+  assert.equal(invoice.totals.deliveryFee, null);
+  assert.equal(invoice.totals.hstIncluded, 28.7);
+  assert.equal(invoice.totals.difference, 10.42);
 });

@@ -11,12 +11,13 @@ function isLcboInvoice(value: unknown): value is LcboInvoice {
   return (
     typeof invoice.orderNumber === "string" &&
     typeof invoice.orderDate === "string" &&
-    typeof invoice.expectedDeliveryDate === "string" &&
+    (typeof invoice.expectedDeliveryDate === "string" || invoice.expectedDeliveryDate === null) &&
     Array.isArray(invoice.items) &&
     invoice.items.length > 0 &&
     Boolean(invoice.totals) &&
     typeof invoice.totals?.total === "number" &&
-    typeof invoice.totals?.calculatedProductTotal === "number"
+    typeof invoice.totals?.calculatedProductTotal === "number" &&
+    typeof invoice.totals?.difference === "number"
   );
 }
 

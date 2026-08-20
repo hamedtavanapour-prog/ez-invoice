@@ -222,7 +222,7 @@ export function InvoiceWorkspace() {
               <div className="flex flex-col gap-5 border-b border-[var(--line)] px-6 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
                 <div>
                   <div className="flex items-center gap-3"><h2 className="text-2xl font-semibold tracking-[-0.03em]">Order {result.orderNumber}</h2><span className="rounded-full bg-[var(--soft-green)] px-3 py-1 text-[11px] font-medium text-[var(--brand)]">{result.items.length} items</span></div>
-                  <p className="mt-2 text-sm text-[var(--muted)]">Order date {result.orderDate} · Expected {formatDate(result.expectedDeliveryDate)}</p>
+                  <p className="mt-2 text-sm text-[var(--muted)]">Order date {result.orderDate}{result.expectedDeliveryDate ? ` · Expected ${formatDate(result.expectedDeliveryDate)}` : " · Delivery date not provided"}</p>
                 </div>
                 <form action="/api/invoices/lcbo/pdf" method="post">
                   <input type="hidden" name="invoice" value={JSON.stringify(result)} />
@@ -230,25 +230,27 @@ export function InvoiceWorkspace() {
                 </form>
               </div>
 
-              <div className="grid gap-4 bg-[#fafaf6] p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-5">
+              <div className="grid gap-4 bg-[#fafaf6] p-6 sm:grid-cols-2 sm:p-8 lg:grid-cols-6">
                 <div className="rounded-2xl bg-[var(--ink)] p-5 text-white sm:col-span-2 lg:col-span-1"><p className="text-xs text-white/60">Calculated product total</p><p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{money.format(result.totals.calculatedProductTotal)}</p></div>
-                <SummaryValue label="Delivery fee" value={money.format(result.totals.deliveryFee)} />
+                <SummaryValue label="Delivery fee" value={result.totals.deliveryFee === null ? "Not provided" : money.format(result.totals.deliveryFee)} />
                 <SummaryValue label="HST included" value={money.format(result.totals.hstIncluded)} />
                 <SummaryValue label="Container deposit" value={money.format(result.totals.containerDepositIncluded)} />
                 <SummaryValue label="Invoice total" value={money.format(result.totals.total)} />
+                <SummaryValue label="Difference" value={money.format(result.totals.difference)} />
               </div>
 
               <div className="px-6 py-7 sm:px-8">
                 <div className="result-grid hidden border-b border-[var(--line)] px-4 pb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)] md:grid">
-                  <span>Product</span><span>Fulfilled</span><span>Unit price</span><span>Deposit</span><span>Net unit</span><span className="text-right">Product total</span>
+                  <span>Product</span><span>Ordered</span><span>Unit price</span><span>Deposit</span><span className="result-group-divider">Fulfilled</span><span>Net unit</span><span className="text-right">Product total</span>
                 </div>
                 <div>
                   {result.items.map((item) => (
                     <article key={item.lcboNumber} className="result-grid border-b border-[var(--line)] px-4 py-5 last:border-0 md:grid md:items-center">
                       <div className="mb-4 md:mb-0"><h3 className="text-base font-semibold leading-5">{item.name}</h3><p className="mt-1 text-xs text-[var(--muted)]">LCBO #{item.lcboNumber} · {item.sizeMl} mL</p></div>
-                      <ResultValue label="Fulfilled" value={String(item.quantityFulfilled)} />
+                      <ResultValue label="Quantity ordered" value={String(item.quantityOrdered)} />
                       <ResultValue label="Unit price" value={money.format(item.unitPrice)} />
                       <ResultValue label="Deposit" value={`− ${money.format(item.bottleDeposit)}`} />
+                      <div className="result-group-divider"><ResultValue label="Fulfilled" value={String(item.quantityFulfilled)} /></div>
                       <ResultValue label="Net unit" value={preciseMoney.format(item.netUnitPrice)} />
                       <div className="mt-4 flex items-center justify-between border-t border-[var(--line)] pt-4 md:mt-0 md:block md:border-0 md:pt-0 md:text-right"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] md:hidden">Product total</span><strong className="text-lg text-[var(--brand)]">{money.format(item.calculatedTotal)}</strong></div>
                     </article>

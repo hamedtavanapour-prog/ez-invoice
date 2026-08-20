@@ -1,11 +1,12 @@
 export type LcboItem = {
   name: string;
   lcboNumber: string;
+  quantityOrdered: number;
   quantityFulfilled: number;
   unitPrice: number;
   bottleDeposit: number;
   sizeMl: number;
-  expectedDeliveryDate: string;
+  expectedDeliveryDate: string | null;
   netUnitPrice: number;
   calculatedTotal: number;
 };
@@ -13,14 +14,15 @@ export type LcboItem = {
 export type LcboInvoice = {
   orderNumber: string;
   orderDate: string;
-  expectedDeliveryDate: string;
+  expectedDeliveryDate: string | null;
   items: LcboItem[];
   totals: {
-    deliveryFee: number;
+    deliveryFee: number | null;
     total: number;
     hstIncluded: number;
     containerDepositIncluded: number;
     calculatedProductTotal: number;
+    difference: number;
   };
 };
 
@@ -110,6 +112,9 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
   const items = lcboIndexes.map((lcboIndex, itemIndex): LcboItem => {
     const nextIndex = lcboIndexes[itemIndex + 1] ?? lines.length;
     const itemText = lines.slice(lcboIndex, nextIndex).join("\n");
+    const quantityOrdered = Number(
+      requireMatch(itemText, /Quantity Ordered:\s*(\d+)/i, "quantity ordered"),
+    );
     const quantityFulfilled = Number(
       requireMatch(itemText, /Quantity Fulfilled:\s*(\d+)/i, "quantity fulfilled"),
     );
@@ -132,15 +137,13 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
     return {
       name: readItemName(lines, lcboIndex),
       lcboNumber: requireMatch(itemText, /^LCBO#:\s*(\d+)/im, "LCBO number"),
+      quantityOrdered,
       quantityFulfilled,
       unitPrice,
       bottleDeposit,
       sizeMl: Number(requireMatch(itemText, /Size mL:\s*(\d+)/i, "bottle size")),
-      expectedDeliveryDate: requireMatch(
-        itemText,
-        /Expected Delivery Date:\s*(\d{4}-\d{2}-\d{2})/i,
-        "expected delivery date",
-      ),
+      expectedDeliveryDate:
+        itemText.match(/Expected Delivery Date:\s*(\d{4}-\d{2}-\d{2})/i)?.[1] ?? null,
       ...calculation,
     };
   });
@@ -148,12 +151,10 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
   const total = parseMoney(
     requireMatch(rawText, /^Total:\s*(\$[\d,.]+)/im, "invoice total"),
   );
-  const deliveryFee = parseMoney(
-    requireMatch(rawText, /^Delivery Fee:\s*(\$[\d,.]+)/im, "delivery fee"),
-  );
-  const deliveryTax = parseMoney(
-    requireMatch(rawText, /^Delivery Tax:\s*(\$[\d,.]+)/im, "delivery tax"),
-  );
+  const deliveryFeeMatch = rawText.match(/^Delivery Fee:\s*(\$[\d,.]+)/im)?.[1];
+  const deliveryFee = deliveryFeeMatch ? parseMoney(deliveryFeeMatch) : null;
+  const deliveryTaxMatch = rawText.match(/^Delivery Tax:\s*(\$[\d,.]+)/im)?.[1];
+  const deliveryTax = deliveryTaxMatch ? parseMoney(deliveryTaxMatch) : 0;
   const invoiceHstIncluded = parseMoney(
     requireMatch(rawText, /^HST Included in Total:\s*(\$[\d,.]+)/im, "included HST"),
   );
@@ -164,20 +165,28 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
       "container deposit total",
     ),
   );
+  const calculatedProductTotal = roundCurrency(
+    items.reduce((sum, item) => sum + item.calculatedTotal, 0),
+  );
+  const calculatedInvoiceTotal =
+    calculatedProductTotal +
+    (deliveryFee ?? 0) +
+    roundCurrency(invoiceHstIncluded + deliveryTax) +
+    containerDepositIncluded;
 
   return {
     orderNumber,
     orderDate,
-    expectedDeliveryDate: items[0].expectedDeliveryDate,
+    expectedDeliveryDate:
+      items.find((item) => item.expectedDeliveryDate)?.expectedDeliveryDate ?? null,
     items,
     totals: {
       deliveryFee,
       total,
       hstIncluded: roundCurrency(invoiceHstIncluded + deliveryTax),
       containerDepositIncluded,
-      calculatedProductTotal: roundCurrency(
-        items.reduce((sum, item) => sum + item.calculatedTotal, 0),
-      ),
+      calculatedProductTotal,
+      difference: roundCurrency(Math.abs(total - calculatedInvoiceTotal)),
     },
   };
 }

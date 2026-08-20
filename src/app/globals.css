@@ -182,8 +182,15 @@ button:focus-visible {
 }
 
 .result-grid {
-  grid-template-columns: minmax(260px, 2fr) 90px 110px 110px 130px 130px;
-  gap: 18px;
+  grid-template-columns: minmax(240px, 2fr) 86px 100px 95px 86px 110px 125px;
+  gap: 14px;
+}
+
+@media (min-width: 768px) {
+  .result-group-divider {
+    border-left: 1px solid var(--line);
+    padding-left: 20px;
+  }
 }
 
 @media (max-width: 480px) {

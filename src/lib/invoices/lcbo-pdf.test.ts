@@ -11,6 +11,7 @@ const invoice: LcboInvoice = {
   items: [{
     name: "PRODUCT RESERVE",
     lcboNumber: "456095",
+    quantityOrdered: 3,
     quantityFulfilled: 2,
     unitPrice: 30.12,
     bottleDeposit: 0.2,
@@ -25,6 +26,7 @@ const invoice: LcboInvoice = {
     hstIncluded: 7.58,
     containerDepositIncluded: 0.4,
     calculatedProductTotal: 52.96,
+    difference: 5.7,
   },
 };
 
