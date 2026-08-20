@@ -1,5 +1,3 @@
-import { PDFParse } from "pdf-parse";
-
 import { parseLcboInvoiceText } from "@/lib/invoices/lcbo";
 
 export const runtime = "nodejs";
@@ -22,6 +20,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "The invoice PDF must be 4 MB or smaller." }, { status: 413 });
     }
 
+    const { PDFParse } = await import("pdf-parse");
     const parser = new PDFParse({ data: Buffer.from(await invoice.arrayBuffer()) });
 
     try {

@@ -98,10 +98,15 @@ export function InvoiceWorkspace() {
       const body = new FormData();
       body.set("invoice", file);
       const response = await fetch("/api/invoices/lcbo", { method: "POST", body });
-      const payload = (await response.json()) as LcboInvoice & { error?: string };
+      const payload = (await response.json().catch(() => null)) as
+        | (LcboInvoice & { error?: string })
+        | null;
 
       if (!response.ok) {
-        throw new Error(payload.error ?? "The invoice could not be processed.");
+        throw new Error(payload?.error ?? `The invoice service returned an error (${response.status}).`);
+      }
+      if (!payload) {
+        throw new Error("The invoice service returned an empty response. Please try again.");
       }
 
       setResult(payload);
