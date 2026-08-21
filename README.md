@@ -8,7 +8,7 @@ A single-page LCBO and The Beer Store invoice calculator built with Next.js, Sup
 - Supplier selection and client-side file validation
 - Typed extraction and calculation contracts
 - Supabase client configuration
-- Privacy-safe aggregate count of successfully processed invoices
+- Privacy-safe aggregate count of invoice processing requests
 - Private `invoice_jobs` migration with RLS enabled
 - Environment template for Vercel and local development
 

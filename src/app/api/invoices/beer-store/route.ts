@@ -1,5 +1,4 @@
 import { parseBeerStoreInvoiceText } from "@/lib/invoices/beer-store";
-import { incrementProcessedInvoiceCount } from "@/lib/invoices/count";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -28,13 +27,7 @@ export async function POST(request: Request) {
     try {
       const extracted = await parser.getText();
       const result = parseBeerStoreInvoiceText(extracted.text);
-      const count = await incrementProcessedInvoiceCount();
-
-      return Response.json(result, {
-        headers: count === null
-          ? undefined
-          : { "X-Processed-Invoice-Count": String(count) },
-      });
+      return Response.json(result);
     } finally {
       await parser.destroy();
     }

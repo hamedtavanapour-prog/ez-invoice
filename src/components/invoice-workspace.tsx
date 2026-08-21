@@ -299,10 +299,33 @@ export function InvoiceWorkspace() {
     acceptFile(event.dataTransfer.files?.[0]);
   }
 
+  async function countProcessingRequest() {
+    try {
+      const response = await fetch("/api/invoices/count", {
+        method: "POST",
+        cache: "no-store",
+        keepalive: true,
+      });
+      const payload = (await response.json()) as { count?: unknown };
+
+      if (
+        response.ok &&
+        typeof payload.count === "number" &&
+        Number.isSafeInteger(payload.count) &&
+        payload.count >= 0
+      ) {
+        setProcessedInvoiceCount(payload.count);
+      }
+    } catch {
+      // Counting never prevents the invoice itself from being processed.
+    }
+  }
+
   async function handleProcess() {
     if (!file) return;
     setError(null);
     setIsProcessing(true);
+    void countProcessingRequest();
 
     try {
       const body = new FormData();
@@ -317,14 +340,6 @@ export function InvoiceWorkspace() {
       }
       if (!payload) {
         throw new Error("The invoice service returned an empty response. Please try again.");
-      }
-
-      const updatedCount = response.headers.get("X-Processed-Invoice-Count");
-      if (updatedCount !== null) {
-        const parsedCount = Number(updatedCount);
-        if (Number.isSafeInteger(parsedCount) && parsedCount >= 0) {
-          setProcessedInvoiceCount(parsedCount);
-        }
       }
 
       setResult(supplier === "lcbo"
@@ -388,7 +403,7 @@ export function InvoiceWorkspace() {
           <section
             aria-label="Happy customer count"
             aria-live="polite"
-            className="w-[170px] rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-[var(--card-shadow)] lg:justify-self-end"
+            className="w-[170px] px-2 py-1 lg:justify-self-end"
           >
             <div className="flex items-center justify-between gap-3">
               <span aria-hidden="true" className="grid size-10 place-items-center rounded-xl bg-[var(--soft-blue)] text-lg">😊</span>
