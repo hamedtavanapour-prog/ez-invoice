@@ -60,6 +60,25 @@ function UploadIcon() {
   );
 }
 
+function BottleIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+      <path d="M10 3h4v4l2.5 3.5v8.25A2.25 2.25 0 0114.25 21h-4.5a2.25 2.25 0 01-2.25-2.25V10.5L10 7V3z" />
+      <path d="M9.5 13h5" />
+    </svg>
+  );
+}
+
+function BeerGlassIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+      <path d="M6 6h10l-1 14H7L6 6z" />
+      <path d="M16 9h1.5a2.5 2.5 0 010 5H16M8.5 3.5h.01M12 3h.01M15 4h.01" />
+      <path d="M7 9h8.5" />
+    </svg>
+  );
+}
+
 function ResultsShell({ children }: { children: ReactNode }) {
   return <div className="overflow-hidden rounded-[18px] border border-[var(--line)] bg-[var(--surface)] shadow-[var(--card-shadow)] sm:rounded-[30px]">{children}</div>;
 }
@@ -390,10 +409,10 @@ export function InvoiceWorkspace() {
               </div>
               <div className="grid grid-cols-2 gap-2 sm:gap-3" role="radiogroup" aria-label="Invoice supplier">
                 <button type="button" role="radio" aria-checked={supplier === "lcbo"} onClick={() => { setSupplier("lcbo"); setError(null); setResult(null); }} className={`supplier-button ${supplier === "lcbo" ? "supplier-button-active" : ""}`}>
-                  <span className="supplier-mark bg-[#7b1e3b]">L</span><span><strong>LCBO</strong><small>Liquor</small></span>
+                  <span className="supplier-mark supplier-mark-lcbo"><BottleIcon /></span><span><strong>LCBO</strong><small>Liquor</small></span>
                 </button>
                 <button type="button" role="radio" aria-checked={supplier === "beer-store"} onClick={() => { setSupplier("beer-store"); setError(null); setResult(null); }} className={`supplier-button ${supplier === "beer-store" ? "supplier-button-active" : ""}`}>
-                  <span className="supplier-mark">B</span><span><strong>Beer Store</strong><small>Beer</small></span>
+                  <span className="supplier-mark supplier-mark-beer"><BeerGlassIcon /></span><span><strong>Beer Store</strong><small>Beer</small></span>
                 </button>
               </div>
             </div>

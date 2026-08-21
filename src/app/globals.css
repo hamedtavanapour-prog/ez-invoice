@@ -123,9 +123,25 @@ button:focus-visible {
   flex: 0 0 auto;
   place-items: center;
   border-radius: 10px;
-  color: white;
-  font-size: 13px;
-  font-weight: 750;
+}
+
+.supplier-mark svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.supplier-mark-lcbo {
+  background: color-mix(in srgb, #9f4162 15%, var(--surface));
+  color: #9f4162;
+}
+
+.supplier-mark-beer {
+  background: color-mix(in srgb, #d68a23 17%, var(--surface));
+  color: #a9660e;
 }
 
 .upload-zone {
@@ -305,7 +321,11 @@ button:focus-visible {
     width: 28px;
     height: 28px;
     border-radius: 8px;
-    font-size: 11px;
+  }
+
+  .supplier-mark svg {
+    width: 16px;
+    height: 16px;
   }
 
   .supplier-button strong { font-size: 11px; }
