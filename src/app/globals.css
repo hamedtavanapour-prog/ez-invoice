@@ -282,6 +282,11 @@ button:focus-visible {
   gap: 12px;
 }
 
+.beer-result-grid {
+  grid-template-columns: minmax(210px, 2fr) 68px 76px 68px 66px 86px 100px;
+  gap: 12px;
+}
+
 @media (min-width: 1024px) {
   .result-group-divider {
     border-left: 1px solid var(--line);
