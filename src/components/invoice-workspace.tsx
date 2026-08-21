@@ -26,6 +26,8 @@ const preciseMoney = new Intl.NumberFormat("en-CA", {
   maximumFractionDigits: 4,
 });
 
+const wholeNumber = new Intl.NumberFormat("en-CA");
+
 function formatSignedMoney(value: number) {
   if (value === 0) return money.format(0);
   return `${value > 0 ? "+" : "−"}${money.format(Math.abs(value))}`;
@@ -201,6 +203,7 @@ export function InvoiceWorkspace() {
   const [result, setResult] = useState<InvoiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [processedInvoiceCount, setProcessedInvoiceCount] = useState<number | null>(null);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
@@ -217,6 +220,35 @@ export function InvoiceWorkspace() {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(timer);
       window.removeEventListener("pageshow", scrollToTop);
+    };
+  }, []);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadProcessedInvoiceCount() {
+      try {
+        const response = await fetch("/api/invoices/count", { cache: "no-store" });
+        const payload = (await response.json()) as { count?: unknown };
+
+        if (
+          isActive &&
+          response.ok &&
+          typeof payload.count === "number" &&
+          Number.isSafeInteger(payload.count) &&
+          payload.count >= 0
+        ) {
+          setProcessedInvoiceCount(payload.count);
+        }
+      } catch {
+        // The invoice calculator remains available when the optional counter is offline.
+      }
+    }
+
+    void loadProcessedInvoiceCount();
+
+    return () => {
+      isActive = false;
     };
   }, []);
 
@@ -268,6 +300,14 @@ export function InvoiceWorkspace() {
         throw new Error("The invoice service returned an empty response. Please try again.");
       }
 
+      const updatedCount = response.headers.get("X-Processed-Invoice-Count");
+      if (updatedCount !== null) {
+        const parsedCount = Number(updatedCount);
+        if (Number.isSafeInteger(parsedCount) && parsedCount >= 0) {
+          setProcessedInvoiceCount(parsedCount);
+        }
+      }
+
       setResult(supplier === "lcbo"
         ? { supplier, invoice: payload as LcboInvoice }
         : { supplier, invoice: payload as BeerStoreInvoice });
@@ -287,13 +327,18 @@ export function InvoiceWorkspace() {
     <div data-theme={isDark ? "dark" : "light"} className="flex min-h-screen w-full flex-col overflow-x-hidden bg-[var(--canvas)] text-[var(--ink)]">
       <header className="border-b border-[var(--line)] bg-[color:var(--surface)/0.92]">
         <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8">
-          <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            aria-label="Refresh EZ Invoice"
+            className="flex cursor-pointer items-center gap-3 rounded-md text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--brand)]"
+          >
             <InvoiceLogo className="h-8 w-10" />
             <div>
               <p className="text-sm font-semibold tracking-[-0.01em]">EZ Invoice</p>
               <p className="text-[11px] text-[var(--muted)]">Invoice calculator</p>
             </div>
-          </div>
+          </button>
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
@@ -319,6 +364,22 @@ export function InvoiceWorkspace() {
           <h1 className="text-balance text-[30px] font-semibold leading-[1.06] tracking-[-0.045em] sm:text-5xl">Upload once. Get the complete breakdown.</h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">Turn LCBO and Beer Store invoices into clear breakdowns and downloadable reports in seconds.</p>
         </div>
+
+        <section
+          aria-label="Community invoice count"
+          aria-live="polite"
+          className="mb-6 flex max-w-xl items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 shadow-[var(--card-shadow)] sm:mb-8 sm:gap-4 sm:px-5"
+        >
+          <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--soft-blue)] text-xl">🎉</span>
+          <div>
+            <p className="text-sm font-semibold tracking-[-0.01em] sm:text-base">
+              {processedInvoiceCount === null
+                ? "Making invoice day a little easier"
+                : `${wholeNumber.format(processedInvoiceCount)} ${processedInvoiceCount === 1 ? "invoice" : "invoices"} made easier`}
+            </p>
+            <p className="mt-0.5 text-xs leading-5 text-[var(--muted)]">Every successful calculation adds one. Thanks for being part of it!</p>
+          </div>
+        </section>
 
         <section className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-3 shadow-[var(--card-shadow)] sm:rounded-[28px] sm:p-6" aria-label="Invoice upload">
           <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(260px,0.85fr)_minmax(420px,1.5fr)_190px] lg:gap-5">
@@ -368,7 +429,7 @@ export function InvoiceWorkspace() {
               <button type="button" disabled={!file || isProcessing} onClick={handleProcess} className="primary-button">
                 {isProcessing ? "Reading invoice…" : "Process invoice"}{!isProcessing && <span aria-hidden="true">→</span>}
               </button>
-              <p className="mt-3 text-center text-[10px] leading-4 text-[var(--muted)]">Processed for this request only. Nothing is stored.</p>
+              <p className="mt-3 text-center text-[10px] leading-4 text-[var(--muted)]">Invoice details aren’t stored. Only the anonymous total is counted.</p>
             </div>
           </div>
           {error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700" role="alert">{error}</p>}
@@ -402,11 +463,11 @@ export function InvoiceWorkspace() {
             <section aria-labelledby="privacy-title" className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 sm:p-6">
               <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9fd3ff]">Privacy by design</p>
               <h2 id="privacy-title" className="mt-2 text-xl font-semibold tracking-[-0.02em]">Your invoice remains yours.</h2>
-              <p className="mt-3 text-sm leading-6 text-white/70">Invoice files are processed only to complete your current calculation. EZ Invoice does not save the uploaded file, extracted invoice data, or generated report to a database. The result displayed on this page exists only for the current page session and is cleared when you refresh or close it.</p>
+              <p className="mt-3 text-sm leading-6 text-white/70">Invoice files are processed only to complete your current calculation. EZ Invoice stores one anonymous total of successful calculations, but never saves the uploaded file, extracted invoice data, or generated report. The result displayed on this page exists only for the current page session and is cleared when you refresh or close it.</p>
               <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-white/75">
                 <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">No account required</span>
                 <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">No invoice storage</span>
-                <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">No database record</span>
+                <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5">Anonymous totals only</span>
               </div>
             </section>
           </div>

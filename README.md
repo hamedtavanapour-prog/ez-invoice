@@ -8,6 +8,7 @@ A single-page LCBO and The Beer Store invoice calculator built with Next.js, Sup
 - Supplier selection and client-side file validation
 - Typed extraction and calculation contracts
 - Supabase client configuration
+- Privacy-safe aggregate count of successfully processed invoices
 - Private `invoice_jobs` migration with RLS enabled
 - Environment template for Vercel and local development
 
@@ -16,6 +17,8 @@ The extraction provider and supplier-specific calculation rules are intentionall
 ## Local setup
 
 Copy `.env.example` to `.env.local` and add the public URL, publishable key, and server-only secret key from Supabase. Never expose `SUPABASE_SECRET_KEY` through a `NEXT_PUBLIC_` variable.
+
+Apply the migrations in `supabase/migrations` to the connected Supabase project. The invoice counter stores only one aggregate number; it does not create a record for each invoice or retain invoice contents.
 
 ```bash
 npm install
