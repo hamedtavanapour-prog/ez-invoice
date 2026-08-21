@@ -18,9 +18,21 @@ const invoice: BeerStoreInvoice = {
     quantityShipped: 4,
     unitPrice: 38.96,
     extendedPrice: 155.84,
+    deposit: 2.4,
+    netUnitPrice: 32.35398230088496,
+    calculatedTotal: 129.42,
   }],
   packages: { bottleQuantity: 9, bottleDeposit: 21.6, kegQuantity: 6, kegDeposit: 300 },
-  totals: { hst: 362.14, emergencyOrderFee: null, fuelCharge: 15.43, deliveryFee: 36.05, orderTotal: 3469.09 },
+  totals: {
+    hst: 362.14,
+    emergencyOrderFee: null,
+    fuelCharge: 15.43,
+    deliveryFee: 36.05,
+    orderTotal: 3469.09,
+    calculatedProductTotal: 129.42,
+    calculatedInvoiceTotal: 864.64,
+    difference: 2604.45,
+  },
 };
 
 test("creates a valid Beer Store summary PDF", () => {

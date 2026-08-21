@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseBeerStoreInvoiceText } from "./beer-store.ts";
+import { calculateBeerStoreItem, parseBeerStoreInvoiceText } from "./beer-store.ts";
 
 function invoiceText({ emergency = false, cans = false } = {}) {
   return `
@@ -40,6 +40,9 @@ test("parses Beer Store products, package details, and totals", () => {
     quantityShipped: 4,
     unitPrice: 38.96,
     extendedPrice: 155.84,
+    deposit: 2.4,
+    netUnitPrice: 32.35398230088496,
+    calculatedTotal: 129.42,
   });
   assert.equal(invoice.items[1].rawDescription.endsWith("REFILL"), true);
   assert.equal(invoice.items[1].packageUnit, "BTL");
@@ -53,6 +56,9 @@ test("parses Beer Store products, package details, and totals", () => {
     fuelCharge: 15.43,
     deliveryFee: 36.05,
     orderTotal: 3469.09,
+    calculatedProductTotal: 707.03,
+    calculatedInvoiceTotal: 1442.25,
+    difference: 2026.84,
   });
 });
 
@@ -76,4 +82,18 @@ test("parses a product description when the comma is omitted", () => {
   assert.equal(invoice.items[2].name, "MICHELOB ULTRA");
   assert.equal(invoice.items[2].sizeValue, 58.6);
   assert.equal(invoice.items[2].packageCode, "58.6PK");
+});
+
+test("uses a $30 deposit for a 30 L keg", () => {
+  const calculation = calculateBeerStoreItem({
+    sizeValue: 30,
+    sizeUnit: "L",
+    packageCode: "30PK",
+    packageUnit: "KEG",
+    quantityShipped: 2,
+    unitPrice: 300,
+  });
+
+  assert.equal(calculation.deposit, 30);
+  assert.equal(calculation.calculatedTotal, 477.88);
 });

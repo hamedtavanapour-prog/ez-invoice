@@ -114,30 +114,36 @@ function BeerStoreResults({ result }: { result: BeerStoreInvoice }) {
   return (
     <ResultsShell>
       <ResultsHeader title={`Invoice ${result.invoiceNumber}`} details={`Delivery date ${formatBeerStoreDate(result.deliveryDate)}`} itemCount={result.items.length} endpoint="/api/invoices/beer-store/pdf" invoice={result} />
-      <div className="summary-grid beer-summary-grid grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-9">
-        <SummaryFeature label="Bottle quantity" value={String(result.packages.bottleQuantity)} />
+      <div className="summary-grid beer-summary-grid grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-6">
+        <SummaryFeature label="Calculated product total" value={money.format(result.totals.calculatedProductTotal)} />
+        <SummaryValue label="Bottle quantity" value={String(result.packages.bottleQuantity)} />
         <SummaryValue label="Bottle deposit" value={money.format(result.packages.bottleDeposit)} />
         <SummaryValue label="Keg quantity" value={String(result.packages.kegQuantity)} />
         <SummaryValue label="Keg deposit" value={money.format(result.packages.kegDeposit)} />
         <SummaryValue label="HST" value={money.format(result.totals.hst)} />
-        {result.totals.emergencyOrderFee !== null && <SummaryValue label="Emergency order fee" value={money.format(result.totals.emergencyOrderFee)} />}
+        {result.totals.emergencyOrderFee !== null
+          ? <SummaryValue label="Emergency order fee" value={money.format(result.totals.emergencyOrderFee)} />
+          : null}
         <SummaryValue label="Fuel charge" value={money.format(result.totals.fuelCharge)} />
         <SummaryValue label="Delivery fee" value={money.format(result.totals.deliveryFee)} />
-        <SummaryValue label="Order total" value={money.format(result.totals.orderTotal)} />
+        <SummaryValue label="Calculated invoice total" value={money.format(result.totals.calculatedInvoiceTotal)} />
+        <SummaryValue label="Beer Store invoice total" value={money.format(result.totals.orderTotal)} />
+        <SummaryValue label="Difference" value={formatSignedMoney(result.totals.difference)} />
       </div>
       <div className="px-3 py-3 sm:px-6 sm:py-7 lg:px-8">
         <div className="beer-result-grid hidden border-b border-[var(--line)] px-3 pb-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--muted)] lg:grid">
-          <span>Product</span><span>Size</span><span>Pack code</span><span>Package</span><span>Shipped</span><span>Unit price</span><span className="text-right">Line total</span>
+          <span>Product</span><span>Size</span><span>Package</span><span>Shipped</span><span>Unit price</span><span>Deposit</span><span className="result-group-divider">Net unit</span><span className="text-right">Product total</span>
         </div>
         {result.items.map((item) => (
           <article key={item.articleNumber} className="beer-result-grid border-b border-[var(--line)] px-1 py-3 last:border-0 sm:px-3 sm:py-4 lg:grid lg:items-center lg:py-5">
-            <div className="mb-3 lg:mb-0"><h3 className="text-sm font-semibold leading-5 sm:text-base">{item.name}</h3><p className="mt-1 text-[11px] text-[var(--muted)] sm:text-xs">Article #{item.articleNumber}</p></div>
+            <div className="mb-3 lg:mb-0"><h3 className="text-sm font-semibold leading-5 sm:text-base">{item.name}</h3><p className="mt-1 text-[11px] text-[var(--muted)] sm:text-xs">Article #{item.articleNumber} · {item.packageCode}</p></div>
             <ResultValue label="Size" value={`${item.sizeValue} ${item.sizeUnit}`} />
-            <ResultValue label="Pack code" value={item.packageCode} />
             <ResultValue label="Package" value={item.packageUnit} />
-            <div className="result-group-divider"><ResultValue label="Shipped" value={String(item.quantityShipped)} /></div>
+            <ResultValue label="Shipped" value={String(item.quantityShipped)} />
             <ResultValue label="Unit price" value={money.format(item.unitPrice)} />
-            <ResultTotal label="Line total" value={money.format(item.extendedPrice)} />
+            <ResultValue label="Deposit" value={`− ${money.format(item.deposit)}`} />
+            <div className="result-group-divider"><ResultValue label="Net unit" value={preciseMoney.format(item.netUnitPrice)} /></div>
+            <ResultTotal label="Product total" value={money.format(item.calculatedTotal)} />
           </article>
         ))}
       </div>

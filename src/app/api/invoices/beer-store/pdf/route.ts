@@ -11,6 +11,12 @@ function isBeerStoreInvoice(value: unknown): value is BeerStoreInvoice {
     typeof invoice.invoiceNumber === "string" &&
     typeof invoice.deliveryDate === "string" &&
     Array.isArray(invoice.items) && invoice.items.length > 0 &&
+    invoice.items.every((item) =>
+      item && typeof item === "object" &&
+      typeof item.deposit === "number" &&
+      typeof item.netUnitPrice === "number" &&
+      typeof item.calculatedTotal === "number"
+    ) &&
     typeof invoice.packages?.bottleQuantity === "number" &&
     typeof invoice.packages?.bottleDeposit === "number" &&
     typeof invoice.packages?.kegQuantity === "number" &&
@@ -19,7 +25,10 @@ function isBeerStoreInvoice(value: unknown): value is BeerStoreInvoice {
     (typeof invoice.totals?.emergencyOrderFee === "number" || invoice.totals?.emergencyOrderFee === null) &&
     typeof invoice.totals?.fuelCharge === "number" &&
     typeof invoice.totals?.deliveryFee === "number" &&
-    typeof invoice.totals?.orderTotal === "number"
+    typeof invoice.totals?.orderTotal === "number" &&
+    typeof invoice.totals?.calculatedProductTotal === "number" &&
+    typeof invoice.totals?.calculatedInvoiceTotal === "number" &&
+    typeof invoice.totals?.difference === "number"
   );
 }
 

@@ -283,8 +283,8 @@ button:focus-visible {
 }
 
 .beer-result-grid {
-  grid-template-columns: minmax(210px, 2fr) 68px 76px 68px 66px 86px 100px;
-  gap: 12px;
+  grid-template-columns: minmax(190px, 2fr) 62px 62px 62px 82px 76px 92px 104px;
+  gap: 10px;
 }
 
 @media (min-width: 1024px) {

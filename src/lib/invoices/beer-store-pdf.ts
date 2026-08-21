@@ -38,15 +38,16 @@ export function createBeerStorePdf(invoice: BeerStoreInvoice) {
 
   autoTable(document, {
     startY: 150,
-    head: [["Product", "Size", "Pack code", "Package", "Shipped", "Unit price", "Line total"]],
+    head: [["Product", "Size / pack", "Package", "Shipped", "Unit price", "Deposit", "Net unit", "Product total"]],
     body: invoice.items.map((item) => [
       `${item.name}\nArticle #${item.articleNumber}`,
-      `${item.sizeValue} ${item.sizeUnit}`,
-      item.packageCode,
+      `${item.sizeValue} ${item.sizeUnit}\n${item.packageCode}`,
       item.packageUnit,
       String(item.quantityShipped),
       money(item.unitPrice),
-      money(item.extendedPrice),
+      money(item.deposit),
+      `$${item.netUnitPrice.toFixed(4)}`,
+      money(item.calculatedTotal),
     ]),
     theme: "striped",
     margin: { left: 42, right: 42, bottom: 38 },
@@ -54,19 +55,21 @@ export function createBeerStorePdf(invoice: BeerStoreInvoice) {
     headStyles: { fillColor: blue, textColor: [255, 255, 255], fontStyle: "bold" },
     alternateRowStyles: { fillColor: lightBlue },
     columnStyles: {
-      0: { cellWidth: 172 },
-      1: { cellWidth: 54 },
-      2: { cellWidth: 62 },
-      3: { cellWidth: 54, halign: "center" },
-      4: { cellWidth: 52, halign: "center" },
-      5: { cellWidth: 66, halign: "right" },
-      6: { cellWidth: 68, halign: "right", fontStyle: "bold" },
+      0: { cellWidth: 128 },
+      1: { cellWidth: 58 },
+      2: { cellWidth: 50, halign: "center" },
+      3: { cellWidth: 46, halign: "center" },
+      4: { cellWidth: 62, halign: "right" },
+      5: { cellWidth: 58, halign: "right" },
+      6: { cellWidth: 58, halign: "right" },
+      7: { cellWidth: 68, halign: "right", fontStyle: "bold" },
     },
     didDrawPage: () => drawFooter(document, pageWidth),
   });
 
   const productTable = document as jsPDF & { lastAutoTable: { finalY: number } };
   const summary: string[][] = [
+    ["Calculated product total", money(invoice.totals.calculatedProductTotal)],
     ["Bottle quantity (bottles, cans and other)", String(invoice.packages.bottleQuantity)],
     ["Bottle deposit", money(invoice.packages.bottleDeposit)],
     ["Keg quantity", String(invoice.packages.kegQuantity)],
@@ -79,7 +82,9 @@ export function createBeerStorePdf(invoice: BeerStoreInvoice) {
   summary.push(
     ["Fuel charge", money(invoice.totals.fuelCharge)],
     ["Delivery fee", money(invoice.totals.deliveryFee)],
-    ["Order total", money(invoice.totals.orderTotal)],
+    ["Calculated invoice total", money(invoice.totals.calculatedInvoiceTotal)],
+    ["Beer Store invoice total", money(invoice.totals.orderTotal)],
+    ["Difference", signedMoney(invoice.totals.difference)],
   );
 
   autoTable(document, {
@@ -93,9 +98,14 @@ export function createBeerStorePdf(invoice: BeerStoreInvoice) {
     columnStyles: { 0: { cellWidth: 390 }, 1: { cellWidth: 138, halign: "right", fontStyle: "bold" } },
     didParseCell: ({ section, row, column, cell }) => {
       if (column.index === 1) cell.styles.halign = "right";
-      if (section === "body" && row.index === summary.length - 1) {
+      if (section === "body" && row.index === summary.length - 2) {
         cell.styles.fillColor = navy;
         cell.styles.textColor = [255, 255, 255];
+        cell.styles.fontStyle = "bold";
+      }
+      if (section === "body" && row.index === summary.length - 1) {
+        cell.styles.fillColor = lightBlue;
+        cell.styles.textColor = navy;
         cell.styles.fontStyle = "bold";
       }
     },
@@ -103,6 +113,11 @@ export function createBeerStorePdf(invoice: BeerStoreInvoice) {
   });
 
   return new Uint8Array(document.output("arraybuffer"));
+}
+
+function signedMoney(value: number) {
+  if (value === 0) return money(0);
+  return `${value > 0 ? "+" : "-"}${money(Math.abs(value))}`;
 }
 
 function drawFooter(document: jsPDF, pageWidth: number) {
