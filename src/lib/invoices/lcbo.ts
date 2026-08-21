@@ -47,6 +47,8 @@ function isPageArtifact(line: string) {
   return (
     /^https?:\/\//i.test(line) ||
     /^-- \d+ of \d+ --$/.test(line) ||
+    /^Page \d+ of \d+(?:\s+https?:\/\/.*)?$/i.test(line) ||
+    /^\d{4}-\d{2}-\d{2},\s+\d{1,2}:\d{2}\s+(?:AM|PM)$/i.test(line) ||
     /^\d{1,2}\/\d{1,2}\/\d{2},.*Gmail -/i.test(line) ||
     /^\d+\/\d+$/.test(line)
   );
@@ -150,19 +152,23 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
   });
 
   const total = parseMoney(
-    requireMatch(rawText, /^Total:\s*(\$[\d,.]+)/im, "invoice total"),
+    requireMatch(rawText, /^Total\s*:\s*(\$[\d,.]+)/im, "invoice total"),
   );
-  const deliveryFeeMatch = rawText.match(/^Delivery Fee:\s*(\$[\d,.]+)/im)?.[1];
+  const deliveryFeeMatch = rawText.match(/^Delivery\s+Fee\s*:\s*(\$[\d,.]+)/im)?.[1];
   const deliveryFee = deliveryFeeMatch ? parseMoney(deliveryFeeMatch) : null;
-  const deliveryTaxMatch = rawText.match(/^Delivery Tax:\s*(\$[\d,.]+)/im)?.[1];
+  const deliveryTaxMatch = rawText.match(/^Delivery\s+Tax\s*:\s*(\$[\d,.]+)/im)?.[1];
   const deliveryTax = deliveryTaxMatch ? parseMoney(deliveryTaxMatch) : 0;
   const invoiceHstIncluded = parseMoney(
-    requireMatch(rawText, /^HST Included in Total:\s*(\$[\d,.]+)/im, "included HST"),
+    requireMatch(
+      rawText,
+      /^HST\s+Included\s+in\s+Total\s*:\s*(\$[\d,.]+)/im,
+      "included HST",
+    ),
   );
   const containerDepositIncluded = parseMoney(
     requireMatch(
       rawText,
-      /^Container Deposit Included in Total:\s*(\$[\d,.]+)/im,
+      /^Container\s+Deposit\s+Included\s+in\s+Total\s*:\s*(\$[\d,.]+)/im,
       "container deposit total",
     ),
   );

@@ -89,3 +89,22 @@ test("uses a negative difference when the calculated invoice total is higher", (
   assert.equal(invoice.totals.calculatedInvoiceTotal, 244.73);
   assert.equal(invoice.totals.difference, -4.73);
 });
+
+test("parses wrapped summary labels and ignores Outlook page artifacts in names", () => {
+  const invoice = parseLcboInvoiceText(
+    sampleText
+      .replace(
+        "SECOND PRODUCT\nLCBO#:",
+        "SECOND PRODUCT\n-- 1 of 2 --\n2026-08-21, 12:37 AM\nPage 2 of 2 https://outlook.office365.com/mail/id/example\nLCBO#:",
+      )
+      .replace("HST Included in Total: $28.70", "HST Included in\nTotal:\n$28.70")
+      .replace(
+        "Container Deposit Included in Total: $2.80",
+        "Container Deposit Included in\nTotal:\n$2.80",
+      ),
+  );
+
+  assert.equal(invoice.items[1].name, "SECOND PRODUCT");
+  assert.equal(invoice.totals.hstIncluded, 29.35);
+  assert.equal(invoice.totals.containerDepositIncluded, 2.8);
+});
