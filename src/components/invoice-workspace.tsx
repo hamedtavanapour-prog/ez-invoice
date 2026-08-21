@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, DragEvent, useRef, useState } from "react";
+import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import type { LcboInvoice } from "@/lib/invoices/lcbo";
@@ -114,12 +114,10 @@ function BeerStoreResults({ result }: { result: BeerStoreInvoice }) {
   return (
     <ResultsShell>
       <ResultsHeader title={`Invoice ${result.invoiceNumber}`} details={`Delivery date ${formatBeerStoreDate(result.deliveryDate)}`} itemCount={result.items.length} endpoint="/api/invoices/beer-store/pdf" invoice={result} />
-      <div className="summary-grid beer-summary-grid grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-6">
+      <div className="summary-grid beer-summary-grid grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-5">
         <SummaryFeature label="Calculated product total" value={money.format(result.totals.calculatedProductTotal)} />
-        <SummaryValue label="Bottle quantity" value={String(result.packages.bottleQuantity)} />
-        <SummaryValue label="Bottle deposit" value={money.format(result.packages.bottleDeposit)} />
-        <SummaryValue label="Keg quantity" value={String(result.packages.kegQuantity)} />
-        <SummaryValue label="Keg deposit" value={money.format(result.packages.kegDeposit)} />
+        <SummaryValue label="Bottle/can deposit total" value={money.format(result.packages.bottleDeposit)} description={`For all ${result.packages.bottleQuantity} shipped package units`} />
+        <SummaryValue label="Keg deposit total" value={money.format(result.packages.kegDeposit)} description={`For all ${result.packages.kegQuantity} shipped kegs`} />
         <SummaryValue label="HST" value={money.format(result.totals.hst)} />
         {result.totals.emergencyOrderFee !== null
           ? <SummaryValue label="Emergency order fee" value={money.format(result.totals.emergencyOrderFee)} />
@@ -203,6 +201,24 @@ export function InvoiceWorkspace() {
   const [result, setResult] = useState<InvoiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
+    if (window.location.hash) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+
+    const scrollToTop = () => window.scrollTo(0, 0);
+    const frame = window.requestAnimationFrame(scrollToTop);
+    const timer = window.setTimeout(scrollToTop, 0);
+    window.addEventListener("pageshow", scrollToTop);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      window.removeEventListener("pageshow", scrollToTop);
+    };
+  }, []);
 
   function acceptFile(nextFile?: File) {
     setResult(null);
@@ -409,8 +425,8 @@ function ResultValue({ label, value }: { label: string; value: string }) {
   return <div className="result-value mb-3 flex items-center justify-between text-sm lg:mb-0 lg:block"><span className="text-[10px] uppercase tracking-[0.08em] text-[var(--muted)] lg:hidden">{label}</span><strong className="font-medium">{value}</strong></div>;
 }
 
-function SummaryValue({ label, value }: { label: string; value: string }) {
-  return <div className="summary-value flex min-h-24 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 sm:rounded-2xl"><span className="summary-label block min-h-7 text-[11px] leading-4 text-[var(--muted)]">{label}</span><strong className="summary-number mt-auto block pt-2 text-lg tracking-[-0.02em] sm:text-xl">{value}</strong></div>;
+function SummaryValue({ label, value, description }: { label: string; value: string; description?: string }) {
+  return <div className="summary-value flex min-h-24 flex-col rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 sm:rounded-2xl"><span className="summary-label block min-h-7 text-[11px] leading-4 text-[var(--muted)]">{label}{description ? <small className="summary-description">{description}</small> : null}</span><strong className="summary-number mt-auto block pt-2 text-lg tracking-[-0.02em] sm:text-xl">{value}</strong></div>;
 }
 
 function SummaryFeature({ label, value }: { label: string; value: string }) {

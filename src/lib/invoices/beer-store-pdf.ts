@@ -33,7 +33,7 @@ export function createBeerStorePdf(invoice: BeerStoreInvoice) {
   document.setFont("helvetica", "normal");
   document.setFontSize(10);
   document.setTextColor(211, 230, 247);
-  document.text(`Invoice ${invoice.invoiceNumber}`, 88, 74);
+  document.text(`Invoice ${invoice.invoiceNumber}`, 42, 74);
   document.text(`Delivery date: ${invoice.deliveryDate}`, 42, 94);
 
   autoTable(document, {
@@ -70,10 +70,8 @@ export function createBeerStorePdf(invoice: BeerStoreInvoice) {
   const productTable = document as jsPDF & { lastAutoTable: { finalY: number } };
   const summary: string[][] = [
     ["Calculated product total", money(invoice.totals.calculatedProductTotal)],
-    ["Bottle quantity (bottles, cans and other)", String(invoice.packages.bottleQuantity)],
-    ["Bottle deposit", money(invoice.packages.bottleDeposit)],
-    ["Keg quantity", String(invoice.packages.kegQuantity)],
-    ["Keg deposit", money(invoice.packages.kegDeposit)],
+    [`Bottle/can deposit total - all ${invoice.packages.bottleQuantity} shipped package units`, money(invoice.packages.bottleDeposit)],
+    [`Keg deposit total - all ${invoice.packages.kegQuantity} shipped kegs`, money(invoice.packages.kegDeposit)],
     ["HST", money(invoice.totals.hst)],
   ];
   if (invoice.totals.emergencyOrderFee !== null) {
