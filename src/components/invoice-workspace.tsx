@@ -359,27 +359,27 @@ export function InvoiceWorkspace() {
 
       <main className="flex-1">
         <div className="mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
-        <div className="mb-6 max-w-3xl sm:mb-8">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">One invoice. Clear numbers.</p>
-          <h1 className="text-balance text-[30px] font-semibold leading-[1.06] tracking-[-0.045em] sm:text-5xl">Upload once. Get the complete breakdown.</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">Turn LCBO and Beer Store invoices into clear breakdowns and downloadable reports in seconds.</p>
-        </div>
-
-        <section
-          aria-label="Community invoice count"
-          aria-live="polite"
-          className="mb-6 flex max-w-xl items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 shadow-[var(--card-shadow)] sm:mb-8 sm:gap-4 sm:px-5"
-        >
-          <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--soft-blue)] text-xl">🎉</span>
-          <div>
-            <p className="text-sm font-semibold tracking-[-0.01em] sm:text-base">
-              {processedInvoiceCount === null
-                ? "Making invoice day a little easier"
-                : `${wholeNumber.format(processedInvoiceCount)} ${processedInvoiceCount === 1 ? "invoice" : "invoices"} made easier`}
-            </p>
-            <p className="mt-0.5 text-xs leading-5 text-[var(--muted)]">Every successful calculation adds one. Thanks for being part of it!</p>
+        <div className="mb-6 grid gap-5 sm:mb-8 lg:grid-cols-[minmax(0,1fr)_170px] lg:items-end">
+          <div className="max-w-3xl">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--brand)]">One invoice. Clear numbers.</p>
+            <h1 className="text-balance text-[30px] font-semibold leading-[1.06] tracking-[-0.045em] sm:text-5xl">Upload once. Get the complete breakdown.</h1>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--muted)] sm:text-base">Turn LCBO and Beer Store invoices into clear breakdowns and downloadable reports in seconds.</p>
           </div>
-        </section>
+
+          <section
+            aria-label="Happy customer count"
+            aria-live="polite"
+            className="w-[170px] rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 shadow-[var(--card-shadow)] lg:justify-self-end"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span aria-hidden="true" className="grid size-10 place-items-center rounded-xl bg-[var(--soft-blue)] text-lg">😊</span>
+              <strong className="text-2xl tracking-[-0.04em] text-[var(--brand)]">
+                {processedInvoiceCount === null ? "—" : wholeNumber.format(processedInvoiceCount)}
+              </strong>
+            </div>
+            <p className="mt-3 border-t border-[var(--line)] pt-3 text-center text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">Happy customers</p>
+          </section>
+        </div>
 
         <section className="rounded-[18px] border border-[var(--line)] bg-[var(--surface)] p-3 shadow-[var(--card-shadow)] sm:rounded-[28px] sm:p-6" aria-label="Invoice upload">
           <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(260px,0.85fr)_minmax(420px,1.5fr)_190px] lg:gap-5">
