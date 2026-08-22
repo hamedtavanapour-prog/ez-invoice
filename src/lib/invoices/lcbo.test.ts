@@ -94,6 +94,17 @@ test("processes an invoice when the order number cannot be read", () => {
   assert.equal(invoice.totals.calculatedInvoiceTotal, 244.73);
 });
 
+test("processes an invoice when the order date cannot be read", () => {
+  const invoice = parseLcboInvoiceText(
+    sampleText.replace("ORDER DATE\n2026-08-01 16:26\n", ""),
+  );
+
+  assert.equal(invoice.orderDate, null);
+  assert.equal(invoice.items.length, 2);
+  assert.equal(invoice.items[0].lcboNumber, "456095");
+  assert.equal(invoice.totals.calculatedInvoiceTotal, 244.73);
+});
+
 test("uses a negative difference when the calculated invoice total is higher", () => {
   const invoice = parseLcboInvoiceText(sampleText.replace("Total: $249.50", "Total: $240.00"));
 

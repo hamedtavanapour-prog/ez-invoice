@@ -10,7 +10,7 @@ function isLcboInvoice(value: unknown): value is LcboInvoice {
   const invoice = value as Partial<LcboInvoice>;
   return (
     (typeof invoice.orderNumber === "string" || invoice.orderNumber === null) &&
-    typeof invoice.orderDate === "string" &&
+    (typeof invoice.orderDate === "string" || invoice.orderDate === null) &&
     (typeof invoice.expectedDeliveryDate === "string" || invoice.expectedDeliveryDate === null) &&
     Array.isArray(invoice.items) &&
     invoice.items.length > 0 &&

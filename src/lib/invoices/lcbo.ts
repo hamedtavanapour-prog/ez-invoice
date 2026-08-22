@@ -13,7 +13,7 @@ export type LcboItem = {
 
 export type LcboInvoice = {
   orderNumber: string | null;
-  orderDate: string;
+  orderDate: string | null;
   expectedDeliveryDate: string | null;
   items: LcboItem[];
   totals: {
@@ -98,11 +98,8 @@ export function parseLcboInvoiceText(rawText: string): LcboInvoice {
     rawText.match(/Your order\s*#\s*(\d+)/i)?.[1] ??
     rawText.match(/ORDER NUMBER\s+(\d+)/i)?.[1] ??
     null;
-  const orderDate = requireMatch(
-    rawText,
-    /\b(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\b/,
-    "order date",
-  );
+  const orderDate =
+    rawText.match(/\b(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})\b/)?.[1] ?? null;
 
   const lcboIndexes = lines.reduce<number[]>((indexes, line, index) => {
     if (/^LCBO#:\s*\d+/i.test(line)) indexes.push(index);

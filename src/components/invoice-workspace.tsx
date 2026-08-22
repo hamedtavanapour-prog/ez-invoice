@@ -99,9 +99,16 @@ function ResultsHeader({ title, details, itemCount, endpoint, invoice }: { title
 }
 
 function LcboResults({ result }: { result: LcboInvoice }) {
+  const details = [
+    result.orderDate ? `Order date ${result.orderDate}` : "Order date not provided",
+    result.expectedDeliveryDate
+      ? `Expected ${formatDate(result.expectedDeliveryDate)}`
+      : "Delivery date not provided",
+  ].join(" · ");
+
   return (
     <ResultsShell>
-      <ResultsHeader title={result.orderNumber ? `Order ${result.orderNumber}` : "LCBO order"} details={`Order date ${result.orderDate}${result.expectedDeliveryDate ? ` · Expected ${formatDate(result.expectedDeliveryDate)}` : " · Delivery date not provided"}`} itemCount={result.items.length} endpoint="/api/invoices/lcbo/pdf" invoice={result} />
+      <ResultsHeader title={result.orderNumber ? `Order ${result.orderNumber}` : "LCBO order"} details={details} itemCount={result.items.length} endpoint="/api/invoices/lcbo/pdf" invoice={result} />
       <div className="summary-grid grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-7">
         <SummaryFeature label="Calculated product total" value={money.format(result.totals.calculatedProductTotal)} />
         <SummaryValue label="Delivery fee" value={result.totals.deliveryFee === null ? "Not provided" : money.format(result.totals.deliveryFee)} />

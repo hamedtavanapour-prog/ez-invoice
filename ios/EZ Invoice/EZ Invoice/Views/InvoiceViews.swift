@@ -218,10 +218,9 @@ struct InvoiceResultsView: View {
     }
 
     private var orderDetails: String {
-        if let deliveryDate = invoice.expectedDeliveryDate {
-            return "Order date \(invoice.orderDate) · Expected \(deliveryDate)"
-        }
-        return "Order date \(invoice.orderDate)"
+        let orderDate = invoice.orderDate.map { "Order date \($0)" } ?? "Order date not provided"
+        let deliveryDate = invoice.expectedDeliveryDate.map { "Expected \($0)" } ?? "Delivery date not provided"
+        return "\(orderDate) · \(deliveryDate)"
     }
 }
 

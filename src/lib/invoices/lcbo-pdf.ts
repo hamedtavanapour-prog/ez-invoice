@@ -77,7 +77,11 @@ export function createLcboPdf(invoice: LcboInvoice) {
     42,
     74,
   );
-  document.text(`Order date: ${invoice.orderDate}`, 42, 94);
+  document.text(
+    invoice.orderDate ? `Order date: ${invoice.orderDate}` : "Order date: Not provided",
+    42,
+    94,
+  );
   document.text(
     invoice.expectedDeliveryDate
       ? `Expected delivery: ${invoice.expectedDeliveryDate}`

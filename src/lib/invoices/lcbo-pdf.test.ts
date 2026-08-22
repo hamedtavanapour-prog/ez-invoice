@@ -42,3 +42,9 @@ test("creates an LCBO PDF without an order number", () => {
   assert.equal(new TextDecoder().decode(pdf.slice(0, 4)), "%PDF");
   assert.ok(pdf.byteLength > 2_000);
 });
+
+test("creates an LCBO PDF without an order date", () => {
+  const pdf = createLcboPdf({ ...invoice, orderDate: null });
+  assert.equal(new TextDecoder().decode(pdf.slice(0, 4)), "%PDF");
+  assert.ok(pdf.byteLength > 2_000);
+});
