@@ -72,7 +72,11 @@ export function createLcboPdf(invoice: LcboInvoice) {
   document.setFont("helvetica", "normal");
   document.setFontSize(10);
   document.setTextColor(211, 230, 247);
-  document.text(`Order ${invoice.orderNumber}`, 42, 74);
+  document.text(
+    invoice.orderNumber ? `Order ${invoice.orderNumber}` : "Order number: Not available",
+    42,
+    74,
+  );
   document.text(`Order date: ${invoice.orderDate}`, 42, 94);
   document.text(
     invoice.expectedDeliveryDate

@@ -83,6 +83,17 @@ test("processes invoices without optional delivery fields", () => {
   assert.equal(invoice.totals.difference, 10.42);
 });
 
+test("processes an invoice when the order number cannot be read", () => {
+  const invoice = parseLcboInvoiceText(
+    sampleText.replace("Your order # 12345678 has been shipped.", "Your order has been shipped."),
+  );
+
+  assert.equal(invoice.orderNumber, null);
+  assert.equal(invoice.items.length, 2);
+  assert.equal(invoice.items[0].lcboNumber, "456095");
+  assert.equal(invoice.totals.calculatedInvoiceTotal, 244.73);
+});
+
 test("uses a negative difference when the calculated invoice total is higher", () => {
   const invoice = parseLcboInvoiceText(sampleText.replace("Total: $249.50", "Total: $240.00"));
 

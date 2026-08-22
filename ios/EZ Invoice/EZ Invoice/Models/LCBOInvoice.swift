@@ -1,7 +1,7 @@
 import Foundation
 
 struct LCBOInvoice: Codable, Sendable {
-    let orderNumber: String
+    let orderNumber: String?
     let orderDate: String
     let expectedDeliveryDate: String?
     let items: [LCBOItem]

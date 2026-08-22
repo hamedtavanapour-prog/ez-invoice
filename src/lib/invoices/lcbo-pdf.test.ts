@@ -36,3 +36,9 @@ test("creates a valid LCBO calculation PDF", () => {
   assert.equal(new TextDecoder().decode(pdf.slice(0, 4)), "%PDF");
   assert.ok(pdf.byteLength > 2_000);
 });
+
+test("creates an LCBO PDF without an order number", () => {
+  const pdf = createLcboPdf({ ...invoice, orderNumber: null });
+  assert.equal(new TextDecoder().decode(pdf.slice(0, 4)), "%PDF");
+  assert.ok(pdf.byteLength > 2_000);
+});

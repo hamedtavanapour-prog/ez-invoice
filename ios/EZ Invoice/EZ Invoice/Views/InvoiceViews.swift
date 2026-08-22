@@ -158,7 +158,7 @@ struct InvoiceResultsView: View {
         VStack(spacing: 18) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("Order \(invoice.orderNumber)")
+                    Text(invoice.orderNumber.map { "Order \($0)" } ?? "LCBO order")
                         .font(.title2.weight(.bold))
                     Spacer()
                     Text("\(invoice.items.count) items")

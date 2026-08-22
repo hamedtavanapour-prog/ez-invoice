@@ -101,7 +101,7 @@ function ResultsHeader({ title, details, itemCount, endpoint, invoice }: { title
 function LcboResults({ result }: { result: LcboInvoice }) {
   return (
     <ResultsShell>
-      <ResultsHeader title={`Order ${result.orderNumber}`} details={`Order date ${result.orderDate}${result.expectedDeliveryDate ? ` · Expected ${formatDate(result.expectedDeliveryDate)}` : " · Delivery date not provided"}`} itemCount={result.items.length} endpoint="/api/invoices/lcbo/pdf" invoice={result} />
+      <ResultsHeader title={result.orderNumber ? `Order ${result.orderNumber}` : "LCBO order"} details={`Order date ${result.orderDate}${result.expectedDeliveryDate ? ` · Expected ${formatDate(result.expectedDeliveryDate)}` : " · Delivery date not provided"}`} itemCount={result.items.length} endpoint="/api/invoices/lcbo/pdf" invoice={result} />
       <div className="summary-grid grid grid-cols-2 gap-3 bg-[var(--summary-bg)] p-4 sm:grid-cols-3 sm:p-6 md:grid-cols-4 lg:p-8 xl:grid-cols-7">
         <SummaryFeature label="Calculated product total" value={money.format(result.totals.calculatedProductTotal)} />
         <SummaryValue label="Delivery fee" value={result.totals.deliveryFee === null ? "Not provided" : money.format(result.totals.deliveryFee)} />
@@ -222,7 +222,7 @@ export function InvoiceWorkspace() {
   const [result, setResult] = useState<InvoiceResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDark, setIsDark] = useState(false);
-  const [processedInvoiceCount, setProcessedInvoiceCount] = useState<number | null>(null);
+  const [processedInvoiceCount, setProcessedInvoiceCount] = useState(0);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) window.history.scrollRestoration = "manual";
@@ -408,7 +408,7 @@ export function InvoiceWorkspace() {
             <div className="flex items-center justify-between gap-3">
               <span aria-hidden="true" className="grid size-10 place-items-center rounded-xl bg-[var(--soft-blue)] text-lg">😊</span>
               <strong className="text-2xl tracking-[-0.04em] text-[var(--brand)]">
-                {processedInvoiceCount === null ? "—" : wholeNumber.format(processedInvoiceCount)}
+                {wholeNumber.format(processedInvoiceCount)}
               </strong>
             </div>
             <p className="mt-3 border-t border-[var(--line)] pt-3 text-center text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--muted)]">Happy customers</p>
@@ -476,7 +476,7 @@ export function InvoiceWorkspace() {
               : <BeerStoreResults result={result.invoice} />
           ) : (
             <div className="grid min-h-[300px] place-items-center rounded-[24px] border border-dashed border-[var(--dash)] bg-[color:var(--surface)/0.72] px-5 text-center sm:min-h-[360px] sm:rounded-[30px] sm:px-6">
-              <div className="max-w-md"><span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--soft-blue)] text-xl font-semibold text-[var(--brand)]">03</span><h2 className="mt-5 text-2xl font-semibold tracking-[-0.03em]">Your full results will appear here</h2><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Upload a {supplier === "lcbo" ? "LCBO" : "Beer Store"} invoice above to see the product table, totals, and downloadable PDF.</p></div>
+              <div className="max-w-md"><h2 className="text-2xl font-semibold tracking-[-0.03em]">Your full results will appear here</h2><p className="mt-3 text-sm leading-6 text-[var(--muted)]">Upload a {supplier === "lcbo" ? "LCBO" : "Beer Store"} invoice above to see the product table, totals, and downloadable PDF.</p></div>
             </div>
           )}
         </section>

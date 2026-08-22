@@ -16,7 +16,7 @@ The extraction provider and supplier-specific calculation rules are intentionall
 
 ## Local setup
 
-Copy `.env.example` to `.env.local` and add the public URL, publishable key, and server-only secret key from Supabase. Never expose `SUPABASE_SECRET_KEY` through a `NEXT_PUBLIC_` variable.
+Copy `.env.example` to `.env.local` and add the public URL, publishable key, and server-only secret key from Supabase. Older Supabase projects can use `SUPABASE_SERVICE_ROLE_KEY` instead of `SUPABASE_SECRET_KEY`. Never expose either server-only key through a `NEXT_PUBLIC_` variable.
 
 Apply the migrations in `supabase/migrations` to the connected Supabase project. The invoice counter stores only one aggregate number; it does not create a record for each invoice or retain invoice contents.
 

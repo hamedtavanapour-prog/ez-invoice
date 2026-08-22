@@ -9,7 +9,7 @@ function isLcboInvoice(value: unknown): value is LcboInvoice {
   if (!value || typeof value !== "object") return false;
   const invoice = value as Partial<LcboInvoice>;
   return (
-    typeof invoice.orderNumber === "string" &&
+    (typeof invoice.orderNumber === "string" || invoice.orderNumber === null) &&
     typeof invoice.orderDate === "string" &&
     (typeof invoice.expectedDeliveryDate === "string" || invoice.expectedDeliveryDate === null) &&
     Array.isArray(invoice.items) &&
@@ -37,7 +37,8 @@ export async function POST(request: Request) {
     }
 
     const pdf = createLcboPdf(invoice);
-    const safeOrderNumber = invoice.orderNumber.replace(/[^a-zA-Z0-9_-]/g, "") || "invoice";
+    const safeOrderNumber =
+      invoice.orderNumber?.replace(/[^a-zA-Z0-9_-]/g, "") || "invoice";
 
     return new Response(pdf, {
       headers: {

@@ -3,12 +3,23 @@ import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let adminClient: SupabaseClient | null = null;
+let hasWarnedAboutConfiguration = false;
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const secretKey = process.env.SUPABASE_SECRET_KEY;
+  const secretKey =
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!url || !secretKey) return null;
+  if (!url || !secretKey) {
+    if (!hasWarnedAboutConfiguration) {
+      console.error(
+        "Invoice counter is not configured. Set NEXT_PUBLIC_SUPABASE_URL and either SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY.",
+      );
+      hasWarnedAboutConfiguration = true;
+    }
+    return null;
+  }
 
   adminClient ??= createClient(url, secretKey, {
     auth: {

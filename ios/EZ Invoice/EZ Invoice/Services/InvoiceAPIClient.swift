@@ -51,7 +51,7 @@ struct InvoiceAPIClient {
         let (data, response) = try await URLSession.shared.data(for: request)
         try validate(response: response, data: data)
 
-        let safeOrderNumber = invoice.orderNumber
+        let safeOrderNumber = (invoice.orderNumber ?? "")
             .filter { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" }
         let filename = "lcbo-order-\(safeOrderNumber.isEmpty ? "invoice" : safeOrderNumber).pdf"
         let destination = FileManager.default.temporaryDirectory.appending(path: filename)
